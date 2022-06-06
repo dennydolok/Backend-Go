@@ -29,4 +29,11 @@ func RegisterMainAPI(e *echo.Echo, conf config.Config) {
 	categoryAPI.GET("", controllerCategory.GetCategoriesController, middleware.RemoveTrailingSlash(), middleware.Logger())
 	categoryAPI.POST("", controllerCategory.CreateCategoryController, middleware.RemoveTrailingSlash(), middleware.Logger())
 
+	userRepository := repositories.NewUserRepository(database)
+	userService := services.NewUserService(userRepository)
+	controllerUser := userController{
+		services: userService,
+	}
+	userAPI := e.Group("/user")
+	userAPI.POST("", controllerUser.Register, middleware.RemoveTrailingSlash(), middleware.Logger())
 }

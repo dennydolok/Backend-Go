@@ -24,7 +24,7 @@ func (cont *categoryController) CreateCategoryController(c echo.Context) error {
 	}
 	return c.JSON(http.StatusCreated, map[string]interface{}{
 		"code":     http.StatusCreated,
-		"messages": err.Error(),
+		"messages": "success!",
 	})
 }
 
