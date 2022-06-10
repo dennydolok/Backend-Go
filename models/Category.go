@@ -1,8 +1,10 @@
 package models
 
+import "time"
+
 type Category struct {
-	ID        uint   `json:"id" gorm:"primaryKey;autoIncrement:true"`
-	Name      string `json:"category"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
+	ID        uint      `json:"id" gorm:"primaryKey;autoIncrement:true"`
+	Name      string    `json:"category"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }

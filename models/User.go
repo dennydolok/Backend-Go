@@ -8,6 +8,8 @@ type User struct {
 	Email       string    `json:"email"`
 	Password    string    `json:"password"`
 	PhoneNumber string    `json:"phonenumber"`
+	Code        string    `json:"code"`
+	Verified    bool      `json:"verified"`
 	CreatedAt   time.Time `json:"createdat"`
 	UpdatedAt   time.Time `json:"updatedat"`
 	RoleID      uint      `json:"roleid"`

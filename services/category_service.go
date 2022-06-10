@@ -3,8 +3,6 @@ package services
 import (
 	"WallE/domains"
 	"WallE/models"
-	"fmt"
-	"time"
 )
 
 type serviceCategory struct {
@@ -12,10 +10,10 @@ type serviceCategory struct {
 }
 
 func (s *serviceCategory) CreateCategory(category models.Category) error {
-	loc, _ := time.LoadLocation("Asia/Jakarta")
-	now := time.Now().In(loc)
-	time := fmt.Sprintf("%02d-%02d-%02d %02d:%02d", now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute())
-	category.CreatedAt = time
+	// loc, _ := time.LoadLocation("Asia/Jakarta")
+	// now := time.Now().In(loc)
+	// time := fmt.Sprintf("%02d-%02d-%02d %02d:%02d", now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute())
+	// category.CreatedAt = time
 	return s.repo.CreateCategory(category)
 }
 

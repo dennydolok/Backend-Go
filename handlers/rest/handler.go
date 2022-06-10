@@ -36,4 +36,5 @@ func RegisterMainAPI(e *echo.Echo, conf config.Config) {
 	}
 	userAPI := e.Group("/user")
 	userAPI.POST("", controllerUser.Register, middleware.RemoveTrailingSlash(), middleware.Logger())
+	userAPI.POST("/verifikasi", controllerUser.Verification, middleware.RemoveTrailingSlash(), middleware.Logger())
 }
