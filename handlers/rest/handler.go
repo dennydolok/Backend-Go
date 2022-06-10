@@ -30,11 +30,12 @@ func RegisterMainAPI(e *echo.Echo, conf config.Config) {
 	categoryAPI.POST("", controllerCategory.CreateCategoryController, middleware.RemoveTrailingSlash(), middleware.Logger())
 
 	userRepository := repositories.NewUserRepository(database)
-	userService := services.NewUserService(userRepository)
+	userService := services.NewUserService(userRepository, conf)
 	controllerUser := userController{
 		services: userService,
 	}
 	userAPI := e.Group("/user")
 	userAPI.POST("", controllerUser.Register, middleware.RemoveTrailingSlash(), middleware.Logger())
 	userAPI.POST("/verifikasi", controllerUser.Verification, middleware.RemoveTrailingSlash(), middleware.Logger())
+	userAPI.POST("/login", controllerUser.Login, middleware.RemoveTrailingSlash(), middleware.Logger())
 }

@@ -11,4 +11,5 @@ type UserDomain interface {
 type UserService interface {
 	Register(user models.User) error
 	VerifikasiRegister(email, kode string) error
+	Login(email, password string) (string, int)
 }

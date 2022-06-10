@@ -1,18 +1,22 @@
 package services
 
 import (
+	"WallE/config"
 	"WallE/domains"
+	"WallE/helper"
 	"WallE/models"
 	"encoding/base64"
 	"errors"
 	"fmt"
 	"math/rand"
+	"net/http"
 
 	"github.com/mailjet/mailjet-apiv3-go/v3"
 )
 
 type serviceUser struct {
-	repo domains.UserDomain
+	repo   domains.UserDomain
+	config config.Config
 }
 
 func (s *serviceUser) Register(user models.User) error {
@@ -43,9 +47,22 @@ func (s *serviceUser) VerifikasiRegister(email, kode string) error {
 	return nil
 }
 
-func NewUserService(repo domains.UserDomain) domains.UserService {
+func (s *serviceUser) Login(email, password string) (string, int) {
+	user, err := s.repo.GetByEmail(email)
+	if err != nil {
+		return "Email tidak terdaftar", http.StatusNotFound
+	}
+	if base64.StdEncoding.EncodeToString([]byte(password)) != user.Password {
+		return "Password Salah", http.StatusUnauthorized
+	}
+	token, err := helper.CreateToken(user.ID, user.RoleID, s.config.SECRET_KEY)
+	return token, http.StatusAccepted
+}
+
+func NewUserService(repo domains.UserDomain, conf config.Config) domains.UserService {
 	return &serviceUser{
-		repo: repo,
+		repo:   repo,
+		config: conf,
 	}
 }
 
