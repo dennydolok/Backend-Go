@@ -18,6 +18,10 @@ type serviceUser struct {
 }
 
 func (s *serviceUser) Register(user models.User) error {
+	_, check := s.repo.GetByEmail(user.Email)
+	if check == nil {
+		return errors.New("Email sudah terdaftar")
+	}
 	user.Password = base64.StdEncoding.EncodeToString([]byte(user.Password))
 	user.Code = GenerateCode()
 	err := helper.SendMail(user.Code, user.Email, user.Name, "Registrasi")
@@ -29,6 +33,7 @@ func (s *serviceUser) Register(user models.User) error {
 }
 
 func (s *serviceUser) VerifikasiRegister(email, kode string) error {
+	fmt.Println(email)
 	user, err := s.repo.GetByEmail(email)
 	if err != nil {
 		return err

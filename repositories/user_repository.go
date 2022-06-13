@@ -22,7 +22,7 @@ func (r *repositoryUser) Register(user models.User) error {
 
 func (r *repositoryUser) GetByEmail(email string) (models.User, error) {
 	user := models.User{}
-	data := r.DB.Find(&user).Where("email =?", email)
+	data := r.DB.Where("email = ?", email).Find(&user)
 	if data.RowsAffected < 1 {
 		return user, errors.New("Email tidak terdaftar")
 	}
