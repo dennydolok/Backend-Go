@@ -65,7 +65,7 @@ func (r *repositoryUser) GetUserByEmail(email string) (models.User, error) {
 
 func (r *repositoryUser) UpdatePassword(email, password string) error {
 	user := models.User{}
-	err := r.DB.Find(&user).Where("email = ?").Update(user.Password, password).Error
+	err := r.DB.Model(&user).Where("email = ?", email).Update("password", password).Error
 	if err != nil {
 		return errors.New("Database Error")
 	}
