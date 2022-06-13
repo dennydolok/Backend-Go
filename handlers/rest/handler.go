@@ -38,4 +38,6 @@ func RegisterMainAPI(e *echo.Echo, conf config.Config) {
 	userAPI.POST("", controllerUser.Register, middleware.RemoveTrailingSlash(), middleware.Logger())
 	userAPI.POST("/verifikasi", controllerUser.Verification, middleware.RemoveTrailingSlash(), middleware.Logger())
 	userAPI.POST("/login", controllerUser.Login, middleware.RemoveTrailingSlash(), middleware.Logger())
+	userAPI.POST("/reset", controllerUser.CreateResetPassword, middleware.RemoveTrailingSlash(), middleware.Logger())
+	userAPI.POST("/reset/update", controllerUser.UpdatePassword, middleware.RemoveTrailingSlash(), middleware.Logger())
 }

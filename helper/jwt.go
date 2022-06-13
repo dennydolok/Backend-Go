@@ -8,7 +8,7 @@ import (
 
 func CreateToken(id, role uint, secret string) (string, error) {
 	claims := jwt.MapClaims{}
-	claims["exp"] = time.Now().Add((24 * time.Hour)).Unix()
+	claims["exp"] = time.Now().Add((7 * 24 * time.Hour)).Unix()
 	claims["role"] = role
 	claims["id"] = id
 

@@ -19,12 +19,12 @@ func (s *userController) Register(c echo.Context) error {
 	err := s.services.Register(newUser)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"kode":     http.StatusInternalServerError,
+			"kode":  http.StatusInternalServerError,
 			"pesan": err.Error(),
 		})
 	}
 	return c.JSON(http.StatusCreated, map[string]interface{}{
-		"kode":     http.StatusCreated,
+		"kode":  http.StatusCreated,
 		"pesan": "Sukses",
 	})
 }
@@ -36,12 +36,12 @@ func (s *userController) Verification(c echo.Context) error {
 	err := s.services.VerifikasiRegister(email, code)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"kode":     http.StatusInternalServerError,
+			"kode":  http.StatusInternalServerError,
 			"pesan": err.Error(),
 		})
 	}
 	return c.JSON(http.StatusCreated, map[string]interface{}{
-		"kode":     http.StatusCreated,
+		"kode":  http.StatusCreated,
 		"pesan": "Sukses",
 	})
 }
@@ -62,6 +62,39 @@ func (s *userController) Login(c echo.Context) error {
 	}
 	return c.JSON(http.StatusAccepted, map[string]interface{}{
 		"pesan": "success",
-		"token":   token,
+		"token": token,
+	})
+}
+
+func (s *userController) CreateResetPassword(c echo.Context) error {
+	email := c.FormValue("email")
+	fmt.Println(email)
+	err := s.services.CreateResetPassword(email)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"kode":  http.StatusInternalServerError,
+			"pesan": err.Error(),
+		})
+	}
+	return c.JSON(http.StatusCreated, map[string]interface{}{
+		"kode":  http.StatusCreated,
+		"pesan": "Sukses",
+	})
+}
+
+func (s *userController) UpdatePassword(c echo.Context) error {
+	email := c.FormValue("email")
+	password := c.FormValue("password")
+	kode := c.FormValue("kode")
+	err := s.services.UpdatePassword(email, password, kode)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"kode":  http.StatusInternalServerError,
+			"pesan": err.Error(),
+		})
+	}
+	return c.JSON(http.StatusCreated, map[string]interface{}{
+		"kode":  http.StatusCreated,
+		"pesan": "Sukses",
 	})
 }

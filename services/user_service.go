@@ -10,8 +10,6 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
-
-	"github.com/mailjet/mailjet-apiv3-go/v3"
 )
 
 type serviceUser struct {
@@ -22,7 +20,7 @@ type serviceUser struct {
 func (s *serviceUser) Register(user models.User) error {
 	user.Password = base64.StdEncoding.EncodeToString([]byte(user.Password))
 	user.Code = GenerateCode()
-	err := SendMail(user.Code, user.Email, user.Name, "registrasi")
+	err := helper.SendMail(user.Code, user.Email, user.Name, "Registrasi")
 	if err != nil {
 		fmt.Println(err)
 		return errors.New("Gagal kirim email verifikasi")
@@ -59,6 +57,43 @@ func (s *serviceUser) Login(email, password string) (string, int) {
 	return token, http.StatusAccepted
 }
 
+func (s *serviceUser) CreateResetPassword(email string) error {
+	user, err := s.repo.GetByEmail(email)
+	if err != nil {
+		return err
+	}
+	reset := models.ResetPassword{}
+	reset.Email = user.Email
+	reset.UserID = user.ID
+	reset.Code = GenerateCode()
+	err = s.repo.CreateResetPassword(reset)
+	if err != nil {
+		fmt.Println(err)
+		return errors.New("Kesalahan database")
+	}
+	err = helper.SendMail(reset.Code, reset.User.Email, reset.User.Name, "Hilang Password")
+	if err != nil {
+		fmt.Println(err)
+		return errors.New("Gagal")
+	}
+	return nil
+}
+
+func (s *serviceUser) UpdatePassword(email, password, code string) error {
+	user, err := s.repo.GetResetPassword(email)
+	if err != nil {
+		return err
+	}
+	if user.Code != code{
+		return errors.New("Kode Salah")
+	}
+	err = s.repo.UpdatePassword(email, password)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func NewUserService(repo domains.UserDomain, conf config.Config) domains.UserService {
 	return &serviceUser{
 		repo:   repo,
@@ -73,33 +108,4 @@ func GenerateCode() string {
 		b[i] = letters[rand.Intn(len(letters))]
 	}
 	return string(b)
-}
-
-func SendMail(code, email, name, context string) error {
-	publicKey := "b5cd4a33c4ea6788fbdc347067b3a35b"
-	secretKey := "4fbc6b06490243458fe04b3182f3f818"
-	mj := mailjet.NewMailjetClient(publicKey, secretKey)
-	messageInfo := []mailjet.InfoMessagesV31{
-		{
-			From: &mailjet.RecipientV31{
-				Email: "bearuang0816@gmail.com",
-				Name:  "WallE",
-			},
-			To: &mailjet.RecipientsV31{
-				mailjet.RecipientV31{
-					Email: email,
-					Name:  name,
-				},
-			},
-			Subject:  "Verifikasi Kode",
-			TextPart: "Berikut verifikasi kode anda untuk " + context + "! \n " + code,
-			HTMLPart: "<h3>Berikut verifikasi kode anda untuk " + context + "!</h3> <br /><center><strong>" + code + "</strong></center>",
-		},
-	}
-	messages := mailjet.MessagesV31{Info: messageInfo}
-	_, err := mj.SendMailV31(&messages)
-	if err != nil {
-		return err
-	}
-	return nil
 }
