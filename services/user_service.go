@@ -71,7 +71,7 @@ func (s *serviceUser) CreateResetPassword(email string) error {
 		fmt.Println(err)
 		return errors.New("Kesalahan database")
 	}
-	err = helper.SendMail(reset.Code, reset.User.Email, reset.User.Name, "Hilang Password")
+	err = helper.SendMail(reset.Code, email, user.Name, "Hilang Password")
 	if err != nil {
 		fmt.Println(err)
 		return errors.New("Gagal")
@@ -84,10 +84,10 @@ func (s *serviceUser) UpdatePassword(email, password, code string) error {
 	if err != nil {
 		return err
 	}
-	if user.Code != code{
+	if user.Code != code {
 		return errors.New("Kode Salah")
 	}
-	err = s.repo.UpdatePassword(email, password)
+	err = s.repo.UpdatePassword(email, base64.StdEncoding.EncodeToString([]byte(password)))
 	if err != nil {
 		return err
 	}
