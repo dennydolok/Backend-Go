@@ -18,23 +18,13 @@ func RegisterMainAPI(e *echo.Echo, conf config.Config) {
 			"message": "It's Working   it's working",
 		})
 	})
-
-	categoryRepository := repositories.NewCategoryRepository(database)
-	categoryService := services.NewCategoryService(categoryRepository)
-	controllerCategory := categoryController{
-		services: categoryService,
-	}
-
-	categoryAPI := e.Group("/category")
-	categoryAPI.GET("", controllerCategory.GetCategoriesController, middleware.RemoveTrailingSlash(), middleware.Logger())
-	categoryAPI.POST("", controllerCategory.CreateCategoryController, middleware.RemoveTrailingSlash(), middleware.Logger())
-
 	userRepository := repositories.NewUserRepository(database)
 	userService := services.NewUserService(userRepository, conf)
 	controllerUser := userController{
 		services: userService,
 	}
 	userAPI := e.Group("/user")
+	userAPI.Use(middleware.CORS())
 	userAPI.POST("", controllerUser.Register, middleware.RemoveTrailingSlash(), middleware.Logger())
 	userAPI.POST("/verifikasi", controllerUser.Verification, middleware.RemoveTrailingSlash(), middleware.Logger())
 	userAPI.POST("/login", controllerUser.Login, middleware.RemoveTrailingSlash(), middleware.Logger())
