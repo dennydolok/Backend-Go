@@ -6,30 +6,37 @@ import (
 	"errors"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
-type repositoryProduct struct {
+type repositoriProduk struct {
 	DB *gorm.DB
 }
 
-func (r *repositoryProduct) GetCategories() []models.Category {
-	categories := []models.Category{}
-	r.DB.Find(categories).Association("Balance")
-	return categories
+func (r *repositoriProduk) AmbilKategori() []models.Kategory {
+	kategori := []models.Kategory{}
+	r.DB.Find(&kategori).Association("Balance")
+	return kategori
 }
 
-func (r *repositoryProduct) IncreaseBalance(amount int, categoryid uint) error {
-	balance := models.Balance{}
-	r.DB.Find(&balance).Where("category_id = ?", categoryid)
-	err := r.DB.Model(balance).Update("balance", balance.Balance+amount).Error
+func (r *repositoriProduk) TambahSaldo(saldobaru int, kategoriid uint) error {
+	saldo := models.Saldo{}
+	r.DB.Find(&saldo).Where("kategori_id = ?", kategoriid)
+	err := r.DB.Model(&saldo).Update("saldo", saldo.Saldo+saldobaru).Error
 	if err != nil {
 		return errors.New("database error")
 	}
 	return nil
 }
 
+func (r *repositoriProduk) AmbilProdukBerdasarkanKategori(kategoriid uint) []models.Produk {
+	produk := []models.Produk{}
+	r.DB.Find(&produk).Preload(clause.Associations).Where("ketogori_id = ?", kategoriid)
+	return produk
+}
+
 func NewProductRepository(db *gorm.DB) domains.ProductDomain {
-	return &repositoryProduct{
+	return &repositoriProduk{
 		DB: db,
 	}
 }
