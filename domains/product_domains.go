@@ -3,12 +3,17 @@ package domains
 import "WallE/models"
 
 type ProductDomain interface {
-	AmbilKategori() []models.Kategory
+	AmbilKategori() []models.Kategori
 	TambahSaldo(saldobaru int, kategoriid uint) error
 	AmbilProdukBerdasarkanKategori(kategoriid uint) []models.Produk
+	AmbilProdukBerdasarkanProviderKategori(kategoriid, providerid uint) []models.Produk
+	TambahProduk(produk models.Produk) error
 }
 
 type ProductService interface {
-	GetKategori() []models.Kategory
-	IncreaseBalance(amount int, categoryid uint) error
+	AmbilKategori() []models.Kategori
+	TambahSaldo(saldobaru int, kategoriid uint) error
+	AmbilProdukBerdasarkanKategori(kategoriid uint) []models.Produk
+	AmbilProdukBerdasarkanProviderKategori(kategoriid, providerid uint) []models.Produk
+	TambahProduk(produk models.Produk) error
 }

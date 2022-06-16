@@ -18,6 +18,16 @@ func RegisterMainAPI(e *echo.Echo, conf config.Config) {
 			"message": "It's Working   it's working",
 		})
 	})
+	produkRepository := repositories.NewProductRepository(database)
+	produkServices := services.NewProdukService(produkRepository)
+	controllerProduk := productController{
+		services: produkServices,
+	}
+	produkAPI := e.Group("/produk")
+	produkAPI.Use(middleware.CORS())
+	produkAPI.POST("/tambah", controllerProduk.TambahProduk, middleware.RemoveTrailingSlash(), middleware.Logger())
+	produkAPI.GET("/kategori", controllerProduk.AmbilProdukBerdasarkanKategori, middleware.RemoveTrailingSlash(), middleware.Logger())
+	produkAPI.POST("/saldo", controllerProduk.TambahSaldo, middleware.RemoveTrailingSlash(), middleware.Logger())
 	userRepository := repositories.NewUserRepository(database)
 	userService := services.NewUserService(userRepository, conf)
 	controllerUser := userController{
