@@ -85,7 +85,9 @@ func (s *serviceUser) CreateResetPassword(email string) error {
 }
 
 func (s *serviceUser) UpdatePassword(email, password, code string) error {
+	// fmt.Println(email, password, code)
 	user, err := s.repo.GetResetPassword(email)
+	// fmt.Println(user)
 	if err != nil {
 		return err
 	}
@@ -108,7 +110,7 @@ func NewUserService(repo domains.UserDomain, conf config.Config) domains.UserSer
 
 func GenerateCode() string {
 	var letters = []rune("1234567890")
-	b := make([]rune, 5)
+	b := make([]rune, 6)
 	for i := range b {
 		b[i] = letters[rand.Intn(len(letters))]
 	}

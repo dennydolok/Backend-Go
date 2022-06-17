@@ -5,6 +5,7 @@ import "time"
 type Produk struct {
 	ID           uint      `json:"id" gorm:"primaryKey;autoIncrement:true"`
 	Nama         string    `json:"nama"`
+	Nominal      int       `json:"nominal"`
 	Harga        int       `json:"harga"`
 	Deskripsi    string    `json:"deskripsi"`
 	KategoriID   uint      `json:"kategori_id"`
