@@ -2,6 +2,7 @@ package rest
 
 import (
 	"WallE/domains"
+	"WallE/helper"
 	"WallE/models"
 	"fmt"
 	"net/http"
@@ -96,5 +97,16 @@ func (s *userController) UpdatePassword(c echo.Context) error {
 	return c.JSON(http.StatusCreated, map[string]interface{}{
 		"kode":  http.StatusCreated,
 		"pesan": "Sukses",
+	})
+}
+
+func (s *userController) Testing(c echo.Context) error {
+	reqToken := c.Request().Header.Get("Authorization")
+	id, role := helper.GetClaim(reqToken)
+
+	return c.JSON(http.StatusCreated, map[string]interface{}{
+		"kode":  http.StatusCreated,
+		"pesan": role,
+		"id":    id,
 	})
 }

@@ -38,8 +38,7 @@ func (r *repositoriProduk) AmbilProdukBerdasarkanKategori(kategoriid uint) []mod
 
 func (r *repositoriProduk) AmbilProdukBerdasarkanProviderKategori(kategoriid, providerid uint) []models.Produk {
 	produk := []models.Produk{}
-	r.DB.Preload("Provider").Preload("Kategori").Preload(clause.Associations)
-	r.DB.Find(&produk).Where("ketogori_id = ?", kategoriid).Where("provider_id = ?", providerid)
+	r.DB.Where("kategori_id = ?", kategoriid).Where("provider_id = ?", providerid).Preload("Provider").Preload("Kategori").Preload(clause.Associations).Find(&produk)
 	return produk
 }
 
@@ -49,6 +48,12 @@ func (r *repositoriProduk) TambahProduk(produk models.Produk) error {
 		return errors.New("database error")
 	}
 	return nil
+}
+
+func (r *repositoriProduk) AmbilSaldo() []models.Saldo {
+	saldo := []models.Saldo{}
+	r.DB.Preload(clause.Associations).Preload("Kategori").Find(&saldo)
+	return saldo
 }
 
 func NewProductRepository(db *gorm.DB) domains.ProductDomain {

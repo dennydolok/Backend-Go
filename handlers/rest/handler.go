@@ -26,8 +26,12 @@ func RegisterMainAPI(e *echo.Echo, conf config.Config) {
 	produkAPI := e.Group("/produk")
 	produkAPI.Use(middleware.CORS())
 	produkAPI.POST("/tambah", controllerProduk.TambahProduk, middleware.RemoveTrailingSlash(), middleware.Logger())
-	produkAPI.GET("/kategori", controllerProduk.AmbilProdukBerdasarkanKategori, middleware.RemoveTrailingSlash(), middleware.Logger())
+	produkAPI.POST("/kategori", controllerProduk.AmbilProdukBerdasarkanKategori, middleware.RemoveTrailingSlash(), middleware.Logger())
 	produkAPI.POST("/saldo", controllerProduk.TambahSaldo, middleware.RemoveTrailingSlash(), middleware.Logger())
+	produkAPI.GET("/kategori", controllerProduk.AmbilKategori, middleware.RemoveTrailingSlash(), middleware.Logger())
+	produkAPI.POST("/kategori-provider", controllerProduk.AmbilProdukBerdasarkanProviderKategori, middleware.RemoveTrailingSlash(), middleware.Logger())
+	produkAPI.GET("/saldo", controllerProduk.AmbilSaldo, middleware.RemoveTrailingSlash(), middleware.Logger())
+
 	userRepository := repositories.NewUserRepository(database)
 	userService := services.NewUserService(userRepository, conf)
 	controllerUser := userController{
@@ -35,6 +39,7 @@ func RegisterMainAPI(e *echo.Echo, conf config.Config) {
 	}
 	userAPI := e.Group("/user")
 	userAPI.Use(middleware.CORS())
+	userAPI.GET("/testing", controllerUser.Testing, middleware.Logger(), middleware.JWT([]byte(conf.SECRET_KEY)))
 	userAPI.POST("", controllerUser.Register, middleware.RemoveTrailingSlash(), middleware.Logger())
 	userAPI.POST("/verifikasi", controllerUser.Verification, middleware.RemoveTrailingSlash(), middleware.Logger())
 	userAPI.POST("/login", controllerUser.Login, middleware.RemoveTrailingSlash(), middleware.Logger())

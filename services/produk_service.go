@@ -42,6 +42,10 @@ func (s *serviceProduk) AmbilKategori() []models.Kategori {
 	return kategori
 }
 
+func (s *serviceProduk) AmbilSaldo() []models.Saldo {
+	return s.repo.AmbilSaldo()
+}
+
 func NewProdukService(repo domains.ProductDomain) domains.ProductService {
 	return &serviceProduk{
 		repo: repo,

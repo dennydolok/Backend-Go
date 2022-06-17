@@ -72,3 +72,11 @@ func (cont *productController) TambahProduk(c echo.Context) error {
 		"message": "sukses",
 	})
 }
+
+func (cont *productController) AmbilSaldo(c echo.Context) error {
+	saldo := cont.services.AmbilSaldo()
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"kode":  http.StatusOK,
+		"saldo": saldo,
+	})
+}
