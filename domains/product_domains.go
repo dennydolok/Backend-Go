@@ -9,6 +9,7 @@ type ProductDomain interface {
 	AmbilProdukBerdasarkanKategori(kategoriid uint) []models.Produk
 	AmbilProdukBerdasarkanProviderKategori(kategoriid, providerid uint) []models.Produk
 	TambahProduk(produk models.Produk) error
+	AmbilProviderBerdasarkanKategori(kategoriid uint) interface{}
 }
 
 type ProductService interface {
@@ -18,4 +19,5 @@ type ProductService interface {
 	AmbilProdukBerdasarkanProviderKategori(kategoriid, providerid uint) []models.Produk
 	TambahProduk(produk models.Produk) error
 	AmbilSaldo() []models.Saldo
+	AmbilProviderBerdasarkanKategori(kategoriid uint) interface{}
 }

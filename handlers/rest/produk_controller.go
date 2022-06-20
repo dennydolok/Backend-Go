@@ -81,3 +81,12 @@ func (cont *productController) AmbilSaldo(c echo.Context) error {
 		"saldo": saldo,
 	})
 }
+
+func (cont *productController) AmbilProviderBerdasarkanKategori(c echo.Context) error {
+	kategoriid, _ := strconv.Atoi(c.Param("kategori_id"))
+	provider := cont.services.AmbilProviderBerdasarkanKategori(uint(kategoriid))
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"kode":     http.StatusOK,
+		"provider": provider,
+	})
+}

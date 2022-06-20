@@ -46,6 +46,10 @@ func (s *serviceProduk) AmbilSaldo() []models.Saldo {
 	return s.repo.AmbilSaldo()
 }
 
+func (s *serviceProduk) AmbilProviderBerdasarkanKategori(kategoriid uint) interface{} {
+	return s.repo.AmbilProviderBerdasarkanKategori(kategoriid)
+}
+
 func NewProdukService(repo domains.ProductDomain) domains.ProductService {
 	return &serviceProduk{
 		repo: repo,

@@ -56,6 +56,16 @@ func (r *repositoriProduk) AmbilSaldo() []models.Saldo {
 	return saldo
 }
 
+func (r *repositoriProduk) AmbilProviderBerdasarkanKategori(kategoriid uint) interface{} {
+	type Result struct {
+		ID   string
+		Nama string
+	}
+	var result []Result
+	r.DB.Raw("SELECT pr.nama AS Nama, provider_id AS ID, kategori_id FROM produks AS p JOIN providers as pr ON p.provider_id = pr.id JOIN kategoris c ON p.kategori_id = c.id WHERE kategori_id = ? GROUP BY id", kategoriid).Scan(&result)
+	return result
+}
+
 func NewProductRepository(db *gorm.DB) domains.ProductDomain {
 	return &repositoriProduk{
 		DB: db,
