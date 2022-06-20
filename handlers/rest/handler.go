@@ -26,10 +26,10 @@ func RegisterMainAPI(e *echo.Echo, conf config.Config) {
 	produkAPI := e.Group("/produk")
 	produkAPI.Use(middleware.CORS())
 	produkAPI.POST("/tambah", controllerProduk.TambahProduk, middleware.RemoveTrailingSlash(), middleware.Logger())
-	produkAPI.POST("/kategori", controllerProduk.AmbilProdukBerdasarkanKategori, middleware.RemoveTrailingSlash(), middleware.Logger())
+	produkAPI.GET("/kategori/:id", controllerProduk.AmbilProdukBerdasarkanKategori, middleware.RemoveTrailingSlash(), middleware.Logger())
 	produkAPI.POST("/saldo", controllerProduk.TambahSaldo, middleware.RemoveTrailingSlash(), middleware.Logger())
 	produkAPI.GET("/kategori", controllerProduk.AmbilKategori, middleware.RemoveTrailingSlash(), middleware.Logger())
-	produkAPI.POST("/kategori-provider", controllerProduk.AmbilProdukBerdasarkanProviderKategori, middleware.RemoveTrailingSlash(), middleware.Logger())
+	produkAPI.GET("/kategori-provider/:kategori_id/:provider_id", controllerProduk.AmbilProdukBerdasarkanProviderKategori, middleware.RemoveTrailingSlash(), middleware.Logger())
 	produkAPI.GET("/saldo", controllerProduk.AmbilSaldo, middleware.RemoveTrailingSlash(), middleware.Logger())
 
 	userRepository := repositories.NewUserRepository(database)

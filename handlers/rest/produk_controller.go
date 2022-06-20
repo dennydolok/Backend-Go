@@ -23,7 +23,7 @@ func (cont *productController) AmbilKategori(c echo.Context) error {
 }
 
 func (cont *productController) TambahSaldo(c echo.Context) error {
-	saldobaru, _ := strconv.Atoi(c.FormValue("saldo_baru"))
+	saldobaru, _ := strconv.Atoi(c.FormValue("saldo"))
 	kategoriid, _ := strconv.Atoi(c.FormValue("kategori_id"))
 	err := cont.services.TambahSaldo(saldobaru, uint(kategoriid))
 	if err != nil {
@@ -38,7 +38,8 @@ func (cont *productController) TambahSaldo(c echo.Context) error {
 	})
 }
 func (cont *productController) AmbilProdukBerdasarkanKategori(c echo.Context) error {
-	kategoriid, _ := strconv.Atoi(c.FormValue("kategori_id"))
+	// kategoriid, _ := strconv.Atoi(c.FormValue("kategori_id"))
+	kategoriid, _ := strconv.Atoi(c.Param("id"))
 	fmt.Println(kategoriid)
 	produk := cont.services.AmbilProdukBerdasarkanKategori(uint(kategoriid))
 	return c.JSON(http.StatusOK, map[string]interface{}{
@@ -48,8 +49,8 @@ func (cont *productController) AmbilProdukBerdasarkanKategori(c echo.Context) er
 }
 
 func (cont *productController) AmbilProdukBerdasarkanProviderKategori(c echo.Context) error {
-	kategoriid, _ := strconv.Atoi(c.FormValue("kategori_id"))
-	providerid, _ := strconv.Atoi(c.FormValue("provider_id"))
+	kategoriid, _ := strconv.Atoi(c.Param("kategori_id"))
+	providerid, _ := strconv.Atoi(c.Param("provider_id"))
 	produk := cont.services.AmbilProdukBerdasarkanProviderKategori(uint(kategoriid), uint(providerid))
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"kode":   http.StatusOK,
