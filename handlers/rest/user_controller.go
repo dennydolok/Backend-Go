@@ -26,7 +26,7 @@ func (s *userController) Register(c echo.Context) error {
 	}
 	return c.JSON(http.StatusCreated, map[string]interface{}{
 		"kode":  http.StatusCreated,
-		"pesan": "Sukses",
+		"pesan": "sukses",
 	})
 }
 
@@ -41,9 +41,9 @@ func (s *userController) Verification(c echo.Context) error {
 			"pesan": err.Error(),
 		})
 	}
-	return c.JSON(http.StatusCreated, map[string]interface{}{
-		"kode":  http.StatusCreated,
-		"pesan": "Sukses",
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"kode":  http.StatusOK,
+		"pesan": "sukses",
 	})
 }
 
@@ -54,14 +54,15 @@ func (s *userController) Login(c echo.Context) error {
 	switch code {
 	case http.StatusNotFound:
 		return c.JSON(http.StatusNotFound, map[string]interface{}{
-			"pesan": "Email Tidak Ditemukan",
+			"pesan": "email tidak ditemukan",
 		})
 	case http.StatusUnauthorized:
 		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
-			"pesan": "Gagal Login",
+			"pesan": "gagal login",
 		})
 	}
-	return c.JSON(http.StatusAccepted, map[string]interface{}{
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"kode":  http.StatusOK,
 		"pesan": "success",
 		"token": token,
 	})
@@ -79,7 +80,7 @@ func (s *userController) CreateResetPassword(c echo.Context) error {
 	}
 	return c.JSON(http.StatusCreated, map[string]interface{}{
 		"kode":  http.StatusCreated,
-		"pesan": "Sukses",
+		"pesan": "sukses",
 	})
 }
 
@@ -96,7 +97,7 @@ func (s *userController) UpdatePassword(c echo.Context) error {
 	}
 	return c.JSON(http.StatusCreated, map[string]interface{}{
 		"kode":  http.StatusCreated,
-		"pesan": "Sukses",
+		"pesan": "sukses",
 	})
 }
 
