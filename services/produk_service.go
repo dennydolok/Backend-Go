@@ -50,6 +50,10 @@ func (s *serviceProduk) AmbilProviderBerdasarkanKategori(kategoriid uint) interf
 	return s.repo.AmbilProviderBerdasarkanKategori(kategoriid)
 }
 
+func (s *serviceProduk) AmbilProdukBisaDibeli(kategoriid, providerid uint) interface{} {
+	return s.repo.AmbilProdukBisaDibeli(kategoriid, providerid)
+}
+
 func NewProdukService(repo domains.ProductDomain) domains.ProductService {
 	return &serviceProduk{
 		repo: repo,

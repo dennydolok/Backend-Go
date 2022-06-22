@@ -4,6 +4,7 @@ import (
 	"WallE/domains"
 	"WallE/models"
 	"errors"
+	"fmt"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -58,11 +59,27 @@ func (r *repositoriProduk) AmbilSaldo() []models.Saldo {
 
 func (r *repositoriProduk) AmbilProviderBerdasarkanKategori(kategoriid uint) interface{} {
 	type Result struct {
-		ID   string
-		Nama string
+		ID   uint   `json:"id"`
+		Nama string `json:"nama"`
 	}
 	var result []Result
-	r.DB.Raw("SELECT pr.nama AS Nama, provider_id AS ID, kategori_id FROM produks AS p JOIN providers as pr ON p.provider_id = pr.id JOIN kategoris c ON p.kategori_id = c.id WHERE kategori_id = ? GROUP BY id", kategoriid).Scan(&result)
+	r.DB.Raw("SELECT pr.nama AS Nama, provider_id AS ID FROM produks AS p JOIN providers as pr ON p.provider_id = pr.id JOIN kategoris c ON p.kategori_id = c.id WHERE kategori_id = ? GROUP BY id", kategoriid).Scan(&result)
+	return result
+}
+
+func (r *repositoriProduk) AmbilProdukBisaDibeli(kategoriid, providerid uint) interface{} {
+	type Result struct {
+		ID            uint   `json:"id"`
+		Nama          string `json:"nama"`
+		Nominal       int    `json:"nominal"`
+		Harga         int    `json:"harga"`
+		Nama_kategori string `json:"nama_kategori"`
+		Nama_provider string `json:"nama_provider"`
+		Tersedia      bool   `json:"tersedia"`
+	}
+	var result []Result
+	r.DB.Raw("SELECT p.id AS id, p.nama AS nama, p.nominal AS nominal, p.harga AS harga, pr.nama AS nama_provider, c.nama AS nama_kategori, IF(p.nominal <= s.saldo, 1, 0) AS tersedia FROM produks AS p JOIN providers AS pr ON p.provider_id = pr.id JOIN kategoris c ON p.kategori_id = c.id JOIN saldos s ON s.kategori_id = c.id WHERE p.kategori_id = ? AND p.provider_id = ? GROUP BY p.id;", kategoriid, providerid).Scan(&result)
+	fmt.Println(result, providerid, kategoriid)
 	return result
 }
 
