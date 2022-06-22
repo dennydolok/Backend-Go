@@ -31,10 +31,14 @@ func (s *userController) Register(c echo.Context) error {
 }
 
 func (s *userController) Verification(c echo.Context) error {
-	email := c.FormValue("email")
-	code := c.FormValue("code")
+	type body struct {
+		Email string `form:"email" json:"email"`
+		Code  string `form:"code" json:"code"`
+	}
+	var repBody body
+	c.Bind(&repBody)
 	fmt.Println(c.FormValue("code"))
-	err := s.services.VerifikasiRegister(email, code)
+	err := s.services.VerifikasiRegister(repBody.Email, repBody.Code)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"kode":  http.StatusInternalServerError,
@@ -69,9 +73,13 @@ func (s *userController) Login(c echo.Context) error {
 }
 
 func (s *userController) CreateResetPassword(c echo.Context) error {
-	email := c.FormValue("email")
-	fmt.Println(email)
-	err := s.services.CreateResetPassword(email)
+	type body struct {
+		Email string `form:"email" json:"email"`
+	}
+	var reqBody body
+	c.Bind(&reqBody)
+	fmt.Println(reqBody)
+	err := s.services.CreateResetPassword(reqBody.Email)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"kode":  http.StatusInternalServerError,
@@ -85,10 +93,14 @@ func (s *userController) CreateResetPassword(c echo.Context) error {
 }
 
 func (s *userController) UpdatePassword(c echo.Context) error {
-	email := c.FormValue("email")
-	password := c.FormValue("password")
-	kode := c.FormValue("kode")
-	err := s.services.UpdatePassword(email, password, kode)
+	type body struct {
+		Email    string `form:"email" json:"email"`
+		Password string `form:"password" json:"password"`
+		Code     string `form:"kode" json:"kode"`
+	}
+	var reqBody body
+	c.Bind(&reqBody)
+	err := s.services.UpdatePassword(reqBody.Email, reqBody.Password, reqBody.Code)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"kode":  http.StatusInternalServerError,
