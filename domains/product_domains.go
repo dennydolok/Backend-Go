@@ -3,23 +3,27 @@ package domains
 import "WallE/models"
 
 type ProductDomain interface {
-	AmbilKategori() []models.Kategori
-	TambahSaldo(saldobaru int, kategoriid uint) error
-	AmbilSaldo() []models.Saldo
-	AmbilProdukBerdasarkanKategori(kategoriid uint) []models.Produk
-	AmbilProdukBerdasarkanProviderKategori(kategoriid, providerid uint) []models.Produk
-	AmbilProdukBisaDibeli(kategoriid, providerid uint) interface{}
-	TambahProduk(produk models.Produk) error
-	AmbilProviderBerdasarkanKategori(kategoriid uint) interface{}
+	GetKategori() []models.Kategori
+	AddSaldo(saldobaru int, kategoriid uint) error
+	GetSaldo() []models.Saldo
+	GetProdukById(id uint) models.Produk
+	GetProdukByKategori(kategoriid uint) []models.Produk
+	GetProdukByKategoriProvider(kategoriid, providerid uint) []models.Produk
+	GetPurchaseableProduct(kategoriid, providerid uint) interface{}
+	AddProduct(produk models.Produk) error
+	GetProviderByKategori(kategoriid uint) interface{}
+	UpdateProductById(id uint, produk models.Produk) error
 }
 
 type ProductService interface {
-	AmbilKategori() []models.Kategori
-	TambahSaldo(saldobaru int, kategoriid uint) error
-	AmbilProdukBerdasarkanKategori(kategoriid uint) []models.Produk
-	AmbilProdukBerdasarkanProviderKategori(kategoriid, providerid uint) []models.Produk
-	TambahProduk(produk models.Produk) error
-	AmbilProdukBisaDibeli(kategoriid, providerid uint) interface{}
-	AmbilSaldo() []models.Saldo
-	AmbilProviderBerdasarkanKategori(kategoriid uint) interface{}
+	GetKategori() []models.Kategori
+	AddSaldo(saldobaru int, kategoriid uint) error
+	GetProdukById(id uint) models.Produk
+	GetProdukByKategori(kategoriid uint) []models.Produk
+	GetProdukByKategoriProvider(kategoriid, providerid uint) []models.Produk
+	AddProduct(produk models.Produk) error
+	GetPurchaseableProduct(kategoriid, providerid uint) interface{}
+	GetSaldo() []models.Saldo
+	GetProviderByKategori(kategoriid uint) interface{}
+	UpdateProductById(id uint, produk models.Produk) error
 }

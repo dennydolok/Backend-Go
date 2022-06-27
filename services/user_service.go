@@ -18,12 +18,22 @@ type serviceUser struct {
 }
 
 func (s *serviceUser) Register(user models.User) error {
-	_, check := s.repo.GetByEmail(user.Email)
+	fmt.Println(user)
+	userExist, check := s.repo.GetByEmail(user.Email)
+	fmt.Println("===")
+	fmt.Println(userExist)
+	user.Code = GenerateCode()
+	user.Password = base64.StdEncoding.EncodeToString([]byte(user.Password))
 	if check == nil {
+		if userExist.Verified == false {
+			err := helper.SendMail(userExist.Code, userExist.Email, userExist.Name, "Registrasi")
+			if err != nil {
+				return errors.New("Sistem Error")
+			}
+			return errors.New("resend")
+		}
 		return errors.New("Email sudah terdaftar")
 	}
-	user.Password = base64.StdEncoding.EncodeToString([]byte(user.Password))
-	user.Code = GenerateCode()
 	err := helper.SendMail(user.Code, user.Email, user.Name, "Registrasi")
 	if err != nil {
 		fmt.Println(err)
@@ -32,22 +42,23 @@ func (s *serviceUser) Register(user models.User) error {
 	return s.repo.Register(user)
 }
 
-func (s *serviceUser) VerifikasiRegister(email, kode string) error {
+func (s *serviceUser) VerifikasiRegister(email, kode string) (string, error) {
 	fmt.Println(email)
 	user, err := s.repo.GetByEmail(email)
 	if err != nil {
-		return err
+		return "", err
 	}
-	fmt.Println(user)
-	fmt.Println(kode)
+	// fmt.Println(user)
+	// fmt.Println(kode)
 	if kode != user.Code {
-		return errors.New("Kode Salah")
+		return "", errors.New("Kode Salah")
 	}
 	err = s.repo.Verifikasi(user.ID)
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	token, err := helper.CreateToken(user.ID, user.RoleID, s.config.SECRET_KEY)
+	return token, nil
 }
 
 func (s *serviceUser) Login(email, password string) (string, int) {

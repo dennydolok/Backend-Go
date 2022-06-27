@@ -19,6 +19,12 @@ func (s *userController) Register(c echo.Context) error {
 	c.Bind(&newUser)
 	err := s.services.Register(newUser)
 	if err != nil {
+		if err.Error() == "resend" {
+			return c.JSON(http.StatusOK, map[string]interface{}{
+				"kode":  http.StatusOK,
+				"pesan": "sukses",
+			})
+		}
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"kode":  http.StatusInternalServerError,
 			"pesan": err.Error(),
@@ -38,7 +44,7 @@ func (s *userController) Verification(c echo.Context) error {
 	var repBody body
 	c.Bind(&repBody)
 	fmt.Println(c.FormValue("code"))
-	err := s.services.VerifikasiRegister(repBody.Email, repBody.Code)
+	token, err := s.services.VerifikasiRegister(repBody.Email, repBody.Code)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"kode":  http.StatusInternalServerError,
@@ -48,6 +54,7 @@ func (s *userController) Verification(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"kode":  http.StatusOK,
 		"pesan": "sukses",
+		"token": token,
 	})
 }
 

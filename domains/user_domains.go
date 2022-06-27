@@ -13,7 +13,7 @@ type UserDomain interface {
 
 type UserService interface {
 	Register(user models.User) error
-	VerifikasiRegister(email, kode string) error
+	VerifikasiRegister(email, kode string) (string, error)
 	Login(email, password string) (string, int)
 	CreateResetPassword(email string) error
 	UpdatePassword(email, password, code string) error

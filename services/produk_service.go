@@ -10,48 +10,58 @@ type serviceProduk struct {
 	repo domains.ProductDomain
 }
 
-func (s *serviceProduk) TambahProduk(produk models.Produk) error {
+func (s *serviceProduk) AddProduct(produk models.Produk) error {
 	produk.DibuatPada = time.Now()
 	produk.DiupdatePada = time.Now()
-	return s.repo.TambahProduk(produk)
+	return s.repo.AddProduct(produk)
 }
 
-func (s *serviceProduk) AmbilProdukBerdasarkanProviderKategori(kategoriid, providerid uint) []models.Produk {
+func (s *serviceProduk) GetProdukByKategoriProvider(kategoriid, providerid uint) []models.Produk {
 	produk := []models.Produk{}
-	produk = s.repo.AmbilProdukBerdasarkanProviderKategori(kategoriid, providerid)
+	produk = s.repo.GetProdukByKategoriProvider(kategoriid, providerid)
 	return produk
 }
 
-func (s *serviceProduk) AmbilProdukBerdasarkanKategori(kategoriid uint) []models.Produk {
+func (s *serviceProduk) GetProdukByKategori(kategoriid uint) []models.Produk {
 	produk := []models.Produk{}
-	produk = s.repo.AmbilProdukBerdasarkanKategori(kategoriid)
+	produk = s.repo.GetProdukByKategori(kategoriid)
 	return produk
 }
 
-func (s *serviceProduk) TambahSaldo(saldobaru int, kategoriid uint) error {
-	err := s.repo.TambahSaldo(saldobaru, kategoriid)
+func (s *serviceProduk) AddSaldo(saldobaru int, kategoriid uint) error {
+	err := s.repo.AddSaldo(saldobaru, kategoriid)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (s *serviceProduk) AmbilKategori() []models.Kategori {
+func (s *serviceProduk) GetKategori() []models.Kategori {
 	kategori := []models.Kategori{}
-	kategori = s.repo.AmbilKategori()
+	kategori = s.repo.GetKategori()
 	return kategori
 }
 
-func (s *serviceProduk) AmbilSaldo() []models.Saldo {
-	return s.repo.AmbilSaldo()
+func (s *serviceProduk) GetSaldo() []models.Saldo {
+	return s.repo.GetSaldo()
 }
 
-func (s *serviceProduk) AmbilProviderBerdasarkanKategori(kategoriid uint) interface{} {
-	return s.repo.AmbilProviderBerdasarkanKategori(kategoriid)
+func (s *serviceProduk) GetProdukById(id uint) models.Produk {
+	return s.repo.GetProdukById(id)
 }
 
-func (s *serviceProduk) AmbilProdukBisaDibeli(kategoriid, providerid uint) interface{} {
-	return s.repo.AmbilProdukBisaDibeli(kategoriid, providerid)
+func (s *serviceProduk) GetProviderByKategori(kategoriid uint) interface{} {
+	return s.repo.GetProviderByKategori(kategoriid)
+}
+
+func (s *serviceProduk) GetPurchaseableProduct(kategoriid, providerid uint) interface{} {
+	return s.repo.GetPurchaseableProduct(kategoriid, providerid)
+}
+
+func (s *serviceProduk) UpdateProductById(id uint, produk models.Produk) error {
+	produk.KategoriID = s.repo.GetProdukById(uint(id)).KategoriID
+	produk.ProviderID = s.repo.GetProdukById(uint(id)).ProviderID
+	return s.repo.UpdateProductById(id, produk)
 }
 
 func NewProdukService(repo domains.ProductDomain) domains.ProductService {
