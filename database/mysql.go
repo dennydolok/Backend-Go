@@ -28,6 +28,8 @@ func InitMysql(conf config.Config) *gorm.DB {
 		&models.Provider{},
 		&models.Kategori{},
 		&models.Saldo{},
-		&models.Produk{})
+		&models.Produk{},
+		&models.Transaksi{},
+	)
 	return DB
 }

@@ -49,18 +49,18 @@ func (cont *productController) GetProdukByKategori(c echo.Context) error {
 	})
 }
 
+func (cont *productController) GetProdukById(c echo.Context) error {
+	produkid, _ := strconv.Atoi(c.Param("id"))
+	produk := cont.services.GetProdukById(uint(produkid))
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"kode":   http.StatusOK,
+		"produk": produk,
+	})
+}
+
 func (cont *productController) GetProdukByKategoriProvider(c echo.Context) error {
 	kategoriid, _ := strconv.Atoi(c.QueryParam("kategori"))
 	providerid, _ := strconv.Atoi(c.QueryParam("provider"))
-	produkid, _ := strconv.Atoi(c.QueryParam("produk"))
-	fmt.Println(produkid)
-	if produkid != 0 {
-		produk := cont.services.GetProdukById(uint(produkid))
-		return c.JSON(http.StatusOK, map[string]interface{}{
-			"kode":   http.StatusOK,
-			"produk": produk,
-		})
-	}
 	produk := cont.services.GetProdukByKategoriProvider(uint(kategoriid), uint(providerid))
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"kode":   http.StatusOK,

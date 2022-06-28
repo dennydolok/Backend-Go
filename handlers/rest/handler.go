@@ -27,6 +27,7 @@ func RegisterMainAPI(e *echo.Echo, conf config.Config) {
 	produkAPI.Use(middleware.CORS())
 	produkAPI.POST("/tambah", controllerProduk.AddProduct, middleware.RemoveTrailingSlash(), middleware.Logger())
 	produkAPI.GET("", controllerProduk.GetProdukByKategoriProvider, middleware.RemoveTrailingSlash(), middleware.Logger())
+	produkAPI.GET("/:id", controllerProduk.GetProdukById, middleware.RemoveTrailingSlash(), middleware.Logger())
 	produkAPI.GET("/pilih", controllerProduk.GetPurchaseableProduct, middleware.RemoveTrailingSlash(), middleware.Logger())
 	produkAPI.PUT("/update/:id", controllerProduk.UpdateProductById, middleware.RemoveTrailingSlash(), middleware.Logger())
 
@@ -40,6 +41,18 @@ func RegisterMainAPI(e *echo.Echo, conf config.Config) {
 	kategoriAPI.GET("/produk/:id", controllerProduk.GetProdukByKategori, middleware.RemoveTrailingSlash(), middleware.Logger())
 	kategoriAPI.POST("/saldo", controllerProduk.AddSaldo, middleware.RemoveTrailingSlash(), middleware.Logger())
 	kategoriAPI.GET("/saldo", controllerProduk.GetSaldo, middleware.RemoveTrailingSlash(), middleware.Logger())
+
+	transaksiRepository := repositories.NewTransaksiRepository(database)
+	transaksiService := services.NewTransaksiService(transaksiRepository)
+	controllerTransaksi := transaksiController{
+		services: transaksiService,
+	}
+
+	transaksiAPI := e.Group("/transaksi")
+	transaksiAPI.Use(middleware.CORS())
+	transaksiAPI.POST("/ewallet", controllerTransaksi.NewTransaksiWallet, middleware.RemoveTrailingSlash(), middleware.Logger())
+	transaksiAPI.POST("/bank", controllerTransaksi.NewTransactionBank, middleware.RemoveTrailingSlash(), middleware.Logger())
+	transaksiAPI.POST("/update", controllerTransaksi.UpdateTransaksi, middleware.RemoveTrailingSlash(), middleware.Logger())
 
 	userRepository := repositories.NewUserRepository(database)
 	userService := services.NewUserService(userRepository, conf)
