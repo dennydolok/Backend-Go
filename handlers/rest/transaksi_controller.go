@@ -2,6 +2,7 @@ package rest
 
 import (
 	"WallE/domains"
+	"WallE/helper"
 	"WallE/models"
 	"net/http"
 
@@ -13,6 +14,14 @@ type transaksiController struct {
 }
 
 func (cont *transaksiController) NewTransaksiWallet(c echo.Context) error {
+	role := helper.GetClaim(c.Request().Header.Get("Authorization"))
+	checkCustomer := helper.CheckCustomer(role)
+	if checkCustomer != nil {
+		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+			"kode":  http.StatusInternalServerError,
+			"pesan": checkCustomer.Error(),
+		})
+	}
 	transaksi := models.Transaksi{}
 	c.Bind(&transaksi)
 	err, res := cont.services.NewTransactionEWallet(transaksi)
@@ -29,6 +38,14 @@ func (cont *transaksiController) NewTransaksiWallet(c echo.Context) error {
 }
 
 func (cont *transaksiController) NewTransactionBank(c echo.Context) error {
+	role := helper.GetClaim(c.Request().Header.Get("Authorization"))
+	checkCustomer := helper.CheckCustomer(role)
+	if checkCustomer != nil {
+		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+			"kode":  http.StatusInternalServerError,
+			"pesan": checkCustomer.Error(),
+		})
+	}
 	transaksi := models.Transaksi{}
 	c.Bind(&transaksi)
 	err, res := cont.services.NewTransactionBank(transaksi)
@@ -56,5 +73,15 @@ func (cont *transaksiController) UpdateTransaksi(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"kode": http.StatusOK,
+	})
+}
+
+func (cont *transaksiController) GetUserTransactions(c echo.Context) error {
+	filter := c.QueryParam("filter")
+	userId := helper.GetUserId(c.Request().Header.Get("Authorization"))
+	transactions := cont.services.GetUserTransactions(uint(userId), filter)
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"kode":      http.StatusOK,
+		"transaksi": transactions,
 	})
 }

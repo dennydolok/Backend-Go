@@ -2,6 +2,7 @@ package rest
 
 import (
 	"WallE/domains"
+	"WallE/helper"
 	"WallE/models"
 	"fmt"
 	"net/http"
@@ -23,6 +24,14 @@ func (cont *productController) GetKategori(c echo.Context) error {
 }
 
 func (cont *productController) AddSaldo(c echo.Context) error {
+	role := helper.GetClaim(c.Request().Header.Get("Authorization"))
+	checkAdmin := helper.CheckAdmin(role)
+	if checkAdmin != nil {
+		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+			"kode":  http.StatusInternalServerError,
+			"pesan": checkAdmin.Error(),
+		})
+	}
 	saldobaru, _ := strconv.Atoi(c.FormValue("saldo"))
 	kategoriid, _ := strconv.Atoi(c.FormValue("kategori_id"))
 	fmt.Println(saldobaru, kategoriid)
@@ -34,8 +43,8 @@ func (cont *productController) AddSaldo(c echo.Context) error {
 		})
 	}
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"kode":    http.StatusOK,
-		"message": "sukses",
+		"kode":  http.StatusOK,
+		"pesan": "sukses",
 	})
 }
 func (cont *productController) GetProdukByKategori(c echo.Context) error {
@@ -69,6 +78,14 @@ func (cont *productController) GetProdukByKategoriProvider(c echo.Context) error
 }
 
 func (cont *productController) AddProduct(c echo.Context) error {
+	role := helper.GetClaim(c.Request().Header.Get("Authorization"))
+	checkAdmin := helper.CheckAdmin(role)
+	if checkAdmin != nil {
+		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+			"kode":  http.StatusInternalServerError,
+			"pesan": checkAdmin.Error(),
+		})
+	}
 	produk := models.Produk{}
 	c.Bind(&produk)
 	err := cont.services.AddProduct(produk)
@@ -79,12 +96,20 @@ func (cont *productController) AddProduct(c echo.Context) error {
 		})
 	}
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"kode":    http.StatusOK,
-		"message": "sukses",
+		"kode":  http.StatusOK,
+		"pesan": "sukses",
 	})
 }
 
 func (cont *productController) GetSaldo(c echo.Context) error {
+	role := helper.GetClaim(c.Request().Header.Get("Authorization"))
+	checkAdmin := helper.CheckAdmin(role)
+	if checkAdmin != nil {
+		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+			"kode":  http.StatusInternalServerError,
+			"pesan": checkAdmin.Error(),
+		})
+	}
 	saldo := cont.services.GetSaldo()
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"kode":  http.StatusOK,
@@ -112,10 +137,41 @@ func (cont *productController) GetPurchaseableProduct(c echo.Context) error {
 }
 
 func (cont *productController) UpdateProductById(c echo.Context) error {
+	role := helper.GetClaim(c.Request().Header.Get("Authorization"))
+	checkAdmin := helper.CheckAdmin(role)
+	if checkAdmin != nil {
+		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+			"kode":  http.StatusInternalServerError,
+			"pesan": checkAdmin.Error(),
+		})
+	}
 	produk := models.Produk{}
 	produkid, _ := strconv.Atoi(c.Param("id"))
 	c.Bind(&produk)
 	err := cont.services.UpdateProductById(uint(produkid), produk)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"kode":  http.StatusInternalServerError,
+			"pesan": err,
+		})
+	}
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"kode":  http.StatusOK,
+		"pesan": "sukses",
+	})
+}
+
+func (cont *productController) DeleteProdukById(c echo.Context) error {
+	role := helper.GetClaim(c.Request().Header.Get("Authorization"))
+	checkAdmin := helper.CheckAdmin(role)
+	if checkAdmin != nil {
+		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+			"kode":  http.StatusInternalServerError,
+			"pesan": checkAdmin.Error(),
+		})
+	}
+	produkid, _ := strconv.Atoi(c.Param("id"))
+	err := cont.services.DeleteProdukById(uint(produkid))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"kode":  http.StatusInternalServerError,

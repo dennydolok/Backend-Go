@@ -13,6 +13,7 @@ type ProductDomain interface {
 	AddProduct(produk models.Produk) error
 	GetProviderByKategori(kategoriid uint) interface{}
 	UpdateProductById(id uint, produk models.Produk) error
+	DeleteProdukById(id uint) error
 }
 
 type ProductService interface {
@@ -26,4 +27,5 @@ type ProductService interface {
 	GetSaldo() []models.Saldo
 	GetProviderByKategori(kategoriid uint) interface{}
 	UpdateProductById(id uint, produk models.Produk) error
+	DeleteProdukById(id uint) error
 }

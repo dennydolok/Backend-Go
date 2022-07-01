@@ -16,8 +16,9 @@ type serviceTransaksi struct {
 }
 
 func (s *serviceTransaksi) NewTransactionBank(transaksi models.Transaksi) (error, interface{}) {
-	midtrans.ServerKey = "SB-Mid-server-oiWZtAAp4u5TaWKDm5AiRr1R"
+	midtrans.ServerKey = "SB-Mid-server-EU1Q1faz7h8T1eL51zvGViIC"
 	midtrans.Environment = midtrans.Sandbox
+
 	produk := s.repo.GetProdukById(transaksi.ProdukID)
 	user := s.repo.GetUserById(transaksi.UserID)
 	item := midtrans.ItemDetails{
@@ -35,13 +36,13 @@ func (s *serviceTransaksi) NewTransactionBank(transaksi models.Transaksi) (error
 			Bank: midtrans.Bank(transaksi.Bank),
 		},
 		TransactionDetails: midtrans.TransactionDetails{
-			OrderID:  helper.GenerateOrderId(id, produk.Kategory.Nama),
+			OrderID:  helper.GenerateOrderId(id, helper.GetShortCategory(produk.KategoriID)),
 			GrossAmt: int64(produk.Harga),
 		},
 		Items: &[]midtrans.ItemDetails{item},
 		CustomerDetails: &midtrans.CustomerDetails{
-			FName: user.Name,
-			Phone: user.PhoneNumber,
+			FName: user.Nama,
+			Phone: user.NomorHP,
 			Email: user.Email,
 		},
 	}
@@ -56,14 +57,16 @@ func (s *serviceTransaksi) NewTransactionBank(transaksi models.Transaksi) (error
 	transaksi.TransaksiID = Response.TransactionID
 	transaksi.Status = Response.TransactionStatus
 	errDB := s.repo.TransaksiBaru(transaksi)
+
+	Result := helper.FromMidBank(*Response, produk.Nama, user.NomorHP, transaksi.Bank, int64(produk.Nominal), int64(produk.Harga))
 	if err != nil {
 		return errDB, ""
 	}
-	return nil, Response
+	return nil, Result
 }
 
 func (s *serviceTransaksi) NewTransactionEWallet(transaksi models.Transaksi) (error, interface{}) {
-	midtrans.ServerKey = "SB-Mid-server-oiWZtAAp4u5TaWKDm5AiRr1R"
+	midtrans.ServerKey = "SB-Mid-server-EU1Q1faz7h8T1eL51zvGViIC"
 	midtrans.Environment = midtrans.Sandbox
 	produk := s.repo.GetProdukById(transaksi.ProdukID)
 	user := s.repo.GetUserById(transaksi.UserID)
@@ -79,13 +82,13 @@ func (s *serviceTransaksi) NewTransactionEWallet(transaksi models.Transaksi) (er
 	chargeReq := &coreapi.ChargeReq{
 		PaymentType: coreapi.PaymentTypeGopay,
 		TransactionDetails: midtrans.TransactionDetails{
-			OrderID:  helper.GenerateOrderId(id, produk.Kategory.Nama),
+			OrderID:  helper.GenerateOrderId(id, helper.GetShortCategory(produk.KategoriID)),
 			GrossAmt: int64(produk.Harga),
 		},
 		Items: &[]midtrans.ItemDetails{item},
 		CustomerDetails: &midtrans.CustomerDetails{
-			FName: user.Name,
-			Phone: user.PhoneNumber,
+			FName: user.Nama,
+			Phone: user.NomorHP,
 			Email: user.Email,
 		},
 	}
@@ -100,16 +103,22 @@ func (s *serviceTransaksi) NewTransactionEWallet(transaksi models.Transaksi) (er
 	transaksi.TransaksiID = Response.TransactionID
 	transaksi.Status = Response.TransactionStatus
 	errDB := s.repo.TransaksiBaru(transaksi)
+	res := helper.FromMidEWallet(*Response, produk.Nama, user.NomorHP, int64(produk.Nominal), int64(produk.Harga))
 	if err != nil {
 		return errDB, ""
 	}
-	return nil, Response
+	return nil, res
 }
 
 func (s *serviceTransaksi) UpdateTransaksi(orderid string, transkasi models.Transaksi) error {
 	fmt.Println(orderid, transkasi)
-	
+
 	return s.repo.UpdateTransaksi(orderid, transkasi)
+}
+
+func (s *serviceTransaksi) GetUserTransactions(id uint, filter string) []models.Transaksi {
+	transaksi := s.repo.GetUserTransactions(id, filter)
+	return transaksi
 }
 
 func (s *serviceTransaksi) GetListTransactionByUserId(userid uint) []models.Transaksi {

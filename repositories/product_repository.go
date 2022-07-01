@@ -5,7 +5,6 @@ import (
 	"WallE/models"
 	"errors"
 	"fmt"
-	"time"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -25,7 +24,7 @@ func (r *repositoriProduk) AddSaldo(saldobaru int, kategoriid uint) error {
 	saldo := models.Saldo{}
 	r.DB.Where("kategori_id = ?", kategoriid).Find(&saldo)
 	saldobaru += saldo.Saldo
-	err := r.DB.Model(&saldo).Update("saldo", saldobaru).Where("kategori_id = ?", kategoriid).Error
+	err := r.DB.Model(&saldo).Where("kategori_id = ?", kategoriid).Update("saldo", saldobaru).Error
 	if err != nil {
 		return errors.New("database error")
 	}
@@ -85,20 +84,22 @@ func (r *repositoriProduk) GetPurchaseableProduct(kategoriid, providerid uint) i
 		Tersedia      bool   `json:"tersedia"`
 	}
 	var result []Result
-	r.DB.Raw("SELECT p.id AS id, p.nama AS nama, p.nominal AS nominal, p.harga AS harga, pr.nama AS nama_provider, c.nama AS nama_kategori, IF(p.nominal <= s.saldo, 1, 0) AS tersedia FROM produks AS p JOIN providers AS pr ON p.provider_id = pr.id JOIN kategoris c ON p.kategori_id = c.id JOIN saldos s ON s.kategori_id = c.id WHERE p.kategori_id = ? AND p.provider_id = ? GROUP BY p.id;", kategoriid, providerid).Scan(&result)
+	r.DB.Raw("SELECT p.id AS id, p.nama AS nama, p.nominal AS nominal, p.harga AS harga, pr.nama AS nama_provider, c.nama AS nama_kategori, IF(p.nominal <= s.saldo, 1, 0) AS tersedia FROM produks AS p JOIN providers AS pr ON p.provider_id = pr.id JOIN kategoris c ON p.kategori_id = c.id JOIN saldos s ON s.kategori_id = c.id WHERE p.kategori_id = ? AND p.provider_id = ? AND p.dihapus IS NULL GROUP BY p.id;", kategoriid, providerid).Scan(&result)
 	fmt.Println(result, providerid, kategoriid)
 	return result
 }
 
 func (r *repositoriProduk) UpdateProductById(id uint, produk models.Produk) error {
+	err := r.DB.Model(&models.Produk{}).Where("id = ?", id).Omit("dibuat_pada").Updates(produk).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
-	err := r.DB.Model(&produk).Where("id = ?", id).Omit("dibuat_pada").Updates(models.Produk{
-		Nama:         produk.Nama,
-		Harga:        produk.Harga,
-		Nominal:      produk.Nominal,
-		Deskripsi:    produk.Deskripsi,
-		DiupdatePada: time.Now(),
-	}).Error
+func (r *repositoriProduk) DeleteProdukById(id uint) error {
+	produk := models.Produk{}
+	err := r.DB.Where("id = ?", id).Delete(&produk).Error
 	if err != nil {
 		return err
 	}

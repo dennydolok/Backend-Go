@@ -6,6 +6,7 @@ import (
 	"WallE/models"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -36,10 +37,25 @@ func (s *userController) Register(c echo.Context) error {
 	})
 }
 
+func (s *userController) GetUserData(c echo.Context) error {
+	userid, _ := strconv.Atoi(c.Param("id"))
+	user, err := s.services.GetUserDataById(uint(userid))
+	if err != nil {
+		return c.JSON(http.StatusNotFound, map[string]interface{}{
+			"kode":  http.StatusNotFound,
+			"pesan": err.Error(),
+		})
+	}
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"kode": http.StatusOK,
+		"user": user,
+	})
+}
+
 func (s *userController) Verification(c echo.Context) error {
 	type body struct {
 		Email string `form:"email" json:"email"`
-		Code  string `form:"code" json:"code"`
+		Code  string `form:"kode" json:"kode"`
 	}
 	var repBody body
 	c.Bind(&repBody)
@@ -70,6 +86,10 @@ func (s *userController) Login(c echo.Context) error {
 	case http.StatusUnauthorized:
 		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
 			"pesan": "gagal login",
+		})
+	case http.StatusNotAcceptable:
+		return c.JSON(http.StatusNotAcceptable, map[string]interface{}{
+			"pesan": "belum verifikasi akun",
 		})
 	}
 	return c.JSON(http.StatusOK, map[string]interface{}{
@@ -122,11 +142,27 @@ func (s *userController) UpdatePassword(c echo.Context) error {
 
 func (s *userController) Testing(c echo.Context) error {
 	reqToken := c.Request().Header.Get("Authorization")
-	id, role := helper.GetClaim(reqToken)
+	role := helper.GetClaim(reqToken)
 
 	return c.JSON(http.StatusCreated, map[string]interface{}{
 		"kode":  http.StatusCreated,
 		"pesan": role,
-		"id":    id,
+	})
+}
+
+func (s *userController) UpdateUserData(c echo.Context) error {
+	user := models.User{}
+	c.Bind(&user)
+	userId := helper.GetUserId(c.Request().Header.Get("Authorization"))
+	err := s.services.UpdateUserData(uint(userId), user)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"kode":  http.StatusInternalServerError,
+			"pesan": err.Error(),
+		})
+	}
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"kode":  http.StatusOK,
+		"pesan": "sukses",
 	})
 }

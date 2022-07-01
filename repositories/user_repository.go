@@ -4,6 +4,7 @@ import (
 	"WallE/domains"
 	"WallE/models"
 	"errors"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -20,6 +21,17 @@ func (r *repositoryUser) Register(user models.User) error {
 	return nil
 }
 
+func (r *repositoryUser) UpdateUserData(id uint, user models.User) error {
+	err := r.DB.Model(&user).Where("id = ?", id).Omit("dibuat_pada").Updates(models.User{
+		Nama:         user.Nama,
+		DiUpdatePada: time.Now(),
+	}).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *repositoryUser) GetByEmail(email string) (models.User, error) {
 	user := models.User{}
 	data := r.DB.Where("email = ?", email).Find(&user)
@@ -29,9 +41,18 @@ func (r *repositoryUser) GetByEmail(email string) (models.User, error) {
 	return user, nil
 }
 
+func (r *repositoryUser) GetUserDataById(id uint) (models.User, error) {
+	user := models.User{}
+	data := r.DB.Where("id = ?", id).Find(&user)
+	if data.RowsAffected < 1 {
+		return user, errors.New("User tidak ditemukan")
+	}
+	return user, nil
+}
+
 func (r *repositoryUser) Verifikasi(id uint) error {
 	user := models.User{}
-	err := r.DB.Model(&user).Where("id = ?", id).Update("verified", true).Error
+	err := r.DB.Model(&user).Where("id = ?", id).Update("verifikasi", true).Error
 	if err != nil {
 		return err
 	}
@@ -47,7 +68,7 @@ func (r *repositoryUser) CreateResetPassword(reset models.ResetPassword) error {
 }
 func (r *repositoryUser) GetResetPassword(email string) (models.ResetPassword, error) {
 	reset := models.ResetPassword{}
-	data := r.DB.Where("email = ?", email).Where("is_done = ?", false).Find(&reset)
+	data := r.DB.Where("email = ?", email).Where("selesai = ?", false).Find(&reset)
 	if data.RowsAffected < 1 {
 		return reset, errors.New("Email tidak ditemukan")
 	}
@@ -70,7 +91,7 @@ func (r *repositoryUser) UpdatePassword(email, password string) error {
 		return errors.New("Database Error")
 	}
 	reset := models.ResetPassword{}
-	err = r.DB.Model(&reset).Where("email = ?", email).Where("is_done = ?", false).Update("is_done", true).Error
+	err = r.DB.Model(&reset).Where("email = ?", email).Where("selesai = ?", false).Update("selesai", true).Error
 	if err != nil {
 		return errors.New("Database Error")
 	}

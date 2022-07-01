@@ -8,6 +8,7 @@ type TransaksiDomain interface {
 	GetListTransactionByUserId(userid uint) []models.Transaksi
 	GetProdukById(id uint) models.Produk
 	GetUserById(id uint) models.User
+	GetUserTransactions(id uint, filter string) []models.Transaksi
 	GetLastId() uint
 }
 
@@ -16,4 +17,5 @@ type TransaksiService interface {
 	NewTransactionBank(transaksi models.Transaksi) (error, interface{})
 	UpdateTransaksi(orderid string, transkasi models.Transaksi) error
 	GetListTransactionByUserId(userid uint) []models.Transaksi
+	GetUserTransactions(id uint, filter string) []models.Transaksi
 }

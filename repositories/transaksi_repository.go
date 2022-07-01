@@ -34,9 +34,23 @@ func (r *RepositoryTransaksi) GetListTransactionByUserId(userid uint) []models.T
 	return transactions
 }
 
+func (r *RepositoryTransaksi) GetUserTransactions(id uint, filter string) []models.Transaksi {
+	transactions := []models.Transaksi{}
+	if filter == "berhasil" {
+		r.DB.Where("user_id = ?", id).Where("status = ?", "settlement").Preload(clause.Associations).Find(&transactions)
+	} else if filter == "tertunda" {
+		r.DB.Where("user_id = ?", id).Where("status = ?", "pending").Preload(clause.Associations).Find(&transactions)
+	} else if filter == "gagal" {
+		r.DB.Where("user_id = ?", id).Where("status = ?", "cancel").Preload(clause.Associations).Find(&transactions)
+	} else {
+		r.DB.Preload(clause.Associations).Preload("Produk."+clause.Associations).Where("user_id = ?", id).Find(&transactions)
+	}
+	return transactions
+}
+
 func (r *RepositoryTransaksi) GetProdukById(id uint) models.Produk {
 	produk := models.Produk{}
-	r.DB.Where("id = ?", id).Preload(clause.Associations).Preload("Provider").Preload("Kategori").Find(&produk)
+	r.DB.Where("id = ?", id).Preload(clause.Associations).Find(&produk)
 	return produk
 }
 

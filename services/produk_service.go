@@ -64,6 +64,10 @@ func (s *serviceProduk) UpdateProductById(id uint, produk models.Produk) error {
 	return s.repo.UpdateProductById(id, produk)
 }
 
+func (s *serviceProduk) DeleteProdukById(id uint) error {
+	return s.repo.DeleteProdukById(id)
+}
+
 func NewProdukService(repo domains.ProductDomain) domains.ProductService {
 	return &serviceProduk{
 		repo: repo,
