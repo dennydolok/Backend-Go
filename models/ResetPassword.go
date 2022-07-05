@@ -8,7 +8,7 @@ type ResetPassword struct {
 	Email        string    `json:"email"`
 	UserID       uint      `json:"userid"`
 	Selesai      bool      `json:"selesai"`
-	DibuatPada   time.Time `json:"dibuat_pada"`
+	DiBuatPada   time.Time `json:"dibuat_pada"`
 	DiUpdatePada time.Time `json:"diupdate_pada"`
 	User         User      `json:"resetuser" gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE,OnUpdate:Cascade"`
 }

@@ -10,7 +10,7 @@ type User struct {
 	NomorHP      string    `json:"nomor_handphone" form:"nomor_handphone"`
 	Kode         string    `json:"kode" form:"kode"`
 	Verifikasi   bool      `json:"verifikasi"`
-	DibuatPada   time.Time `json:"dibuat_pada"`
+	DiBuatPada   time.Time `json:"dibuat_pada"`
 	DiUpdatePada time.Time `json:"diupdate_pada"`
 	RoleID       uint      `json:"role_id"`
 	Role         Role      `json:"-" gorm:"foreignKey:RoleID;constraint:OnDelete:CASCADE,OnUpdate:Cascade"`

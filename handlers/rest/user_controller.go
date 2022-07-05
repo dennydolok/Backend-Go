@@ -6,7 +6,6 @@ import (
 	"WallE/models"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -38,8 +37,8 @@ func (s *userController) Register(c echo.Context) error {
 }
 
 func (s *userController) GetUserData(c echo.Context) error {
-	userid, _ := strconv.Atoi(c.Param("id"))
-	user, err := s.services.GetUserDataById(uint(userid))
+	userId := helper.GetUserId(c.Request().Header.Get("Authorization"))
+	user, err := s.services.GetUserDataById(uint(userId))
 	if err != nil {
 		return c.JSON(http.StatusNotFound, map[string]interface{}{
 			"kode":  http.StatusNotFound,

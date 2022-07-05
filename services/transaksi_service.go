@@ -18,7 +18,6 @@ type serviceTransaksi struct {
 func (s *serviceTransaksi) NewTransactionBank(transaksi models.Transaksi) (error, interface{}) {
 	midtrans.ServerKey = "SB-Mid-server-EU1Q1faz7h8T1eL51zvGViIC"
 	midtrans.Environment = midtrans.Sandbox
-
 	produk := s.repo.GetProdukById(transaksi.ProdukID)
 	user := s.repo.GetUserById(transaksi.UserID)
 	item := midtrans.ItemDetails{
@@ -107,13 +106,27 @@ func (s *serviceTransaksi) NewTransactionEWallet(transaksi models.Transaksi) (er
 	if err != nil {
 		return errDB, ""
 	}
+	errorBalance := s.repo.ReduceBalance(produk.KategoriID, produk.Nominal)
+	if errorBalance != nil {
+		return errorBalance, ""
+	}
 	return nil, res
 }
 
 func (s *serviceTransaksi) UpdateTransaksi(orderid string, transkasi models.Transaksi) error {
-	fmt.Println(orderid, transkasi)
-
-	return s.repo.UpdateTransaksi(orderid, transkasi)
+	err := s.repo.UpdateTransaksi(orderid, transkasi)
+	fmt.Println(transkasi)
+	if err != nil {
+		return err
+	}
+	if transkasi.Status == "expire" || transkasi.Status == "cancel" {
+		transkasi = s.repo.GetTransactionByOrderId(transkasi.OrderID)
+		err = s.repo.RefundBalance(transkasi.Produk.KategoriID, transkasi.Produk.Nominal)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (s *serviceTransaksi) GetUserTransactions(id uint, filter string) []models.Transaksi {
@@ -125,6 +138,11 @@ func (s *serviceTransaksi) GetListTransactionByUserId(userid uint) []models.Tran
 	transaksi := []models.Transaksi{}
 	return transaksi
 }
+
+func (s *serviceTransaksi) GetAllTransaction() []models.Transaksi {
+	return s.repo.GetAllTransaction()
+}
+
 
 func NewTransaksiService(repo domains.TransaksiDomain) domains.TransaksiService {
 	return &serviceTransaksi{

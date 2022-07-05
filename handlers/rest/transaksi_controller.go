@@ -85,3 +85,19 @@ func (cont *transaksiController) GetUserTransactions(c echo.Context) error {
 		"transaksi": transactions,
 	})
 }
+
+func (cont *transaksiController) GetAllTransaction(c echo.Context) error {
+	role := helper.GetClaim(c.Request().Header.Get("Authorization"))
+	checkAdmin := helper.CheckAdmin(role)
+	if checkAdmin != nil {
+		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+			"kode":  http.StatusInternalServerError,
+			"pesan": checkAdmin.Error(),
+		})
+	}
+	transactions := cont.services.GetAllTransaction()
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"kode":      http.StatusOK,
+		"transaksi": transactions,
+	})
+}

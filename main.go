@@ -3,10 +3,6 @@ package main
 import (
 	"WallE/config"
 	"WallE/handlers/rest"
-	_ "crypto/tls"
-	_ "crypto/x509"
-	_ "io/ioutil"
-	_ "log"
 
 	"github.com/labstack/echo/v4"
 )

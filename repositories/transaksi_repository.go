@@ -3,6 +3,7 @@ package repositories
 import (
 	"WallE/domains"
 	"WallE/models"
+	"errors"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -67,6 +68,40 @@ func (r *RepositoryTransaksi) GetLastId() uint {
 		return 1
 	}
 	return (transaksi.ID + 1)
+}
+
+func (r *RepositoryTransaksi) ReduceBalance(id uint, balance int) error {
+	saldo := models.Saldo{}
+	r.DB.Where("kategori_id = ?", id).Find(&saldo)
+	saldo.Saldo = saldo.Saldo - balance
+	err := r.DB.Model(&saldo).Where("kategori_id = ?", id).Update("saldo", saldo.Saldo).Error
+	if err != nil {
+		return errors.New("database error")
+	}
+	return nil
+}
+
+func (r *RepositoryTransaksi) RefundBalance(id uint, balance int) error {
+	saldo := models.Saldo{}
+	r.DB.Where("kategori_id = ?", id).Find(&saldo)
+	saldo.Saldo = saldo.Saldo + balance
+	err := r.DB.Model(&saldo).Where("kategori_id = ?", id).Update("saldo", saldo.Saldo).Error
+	if err != nil {
+		return errors.New("database error")
+	}
+	return nil
+}
+
+func (r *RepositoryTransaksi) GetTransactionByOrderId(orderid string) models.Transaksi {
+	transaksi := models.Transaksi{}
+	r.DB.Preload(clause.Associations).Preload("Produk."+clause.Associations).Where("order_id = ?", orderid).Find(&transaksi)
+	return transaksi
+}
+
+func (r *RepositoryTransaksi) GetAllTransaction() []models.Transaksi {
+	transaksi := []models.Transaksi{}
+	r.DB.Preload(clause.Associations).Preload("Produk." + clause.Associations).Find(&transaksi)
+	return transaksi
 }
 
 func NewTransaksiRepository(db *gorm.DB) domains.TransaksiDomain {

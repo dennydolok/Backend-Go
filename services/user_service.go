@@ -23,7 +23,7 @@ func (s *serviceUser) Register(user models.User) error {
 	userExist, check := s.repo.GetByEmail(user.Email)
 	fmt.Println("===")
 	fmt.Println(userExist)
-	user.DibuatPada = time.Now()
+	user.DiBuatPada = time.Now()
 	user.DiUpdatePada = time.Now()
 	user.Kode = GenerateCode()
 	user.Password = base64.StdEncoding.EncodeToString([]byte(user.Password))
@@ -96,6 +96,9 @@ func (s *serviceUser) CreateResetPassword(email string) error {
 	reset.Email = user.Email
 	reset.UserID = user.ID
 	reset.Kode = GenerateCode()
+	reset.DiBuatPada = time.Now()
+	reset.DiUpdatePada = time.Now()
+	fmt.Println(reset)
 	err = s.repo.CreateResetPassword(reset)
 	if err != nil {
 		fmt.Println(err)

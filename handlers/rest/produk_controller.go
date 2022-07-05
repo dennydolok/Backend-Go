@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 )
@@ -88,6 +89,13 @@ func (cont *productController) AddProduct(c echo.Context) error {
 	}
 	produk := models.Produk{}
 	c.Bind(&produk)
+	nama := strings.TrimSpace(produk.Nama)
+	if len(nama) == 0 {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"kode":  http.StatusInternalServerError,
+			"pesan": "nama produk harus diisi",
+		})
+	}
 	err := cont.services.AddProduct(produk)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -148,6 +156,7 @@ func (cont *productController) UpdateProductById(c echo.Context) error {
 	produk := models.Produk{}
 	produkid, _ := strconv.Atoi(c.Param("id"))
 	c.Bind(&produk)
+	fmt.Println(produk)
 	err := cont.services.UpdateProductById(uint(produkid), produk)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{

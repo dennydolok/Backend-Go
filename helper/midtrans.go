@@ -48,8 +48,8 @@ type RespEWallet struct {
 	NoHP              string `json:"no_handphone"`
 	Jam               string `json:"jam"`
 	MetodePembayaran  string `json:"metode_pembayaran"`
-	QRCode            string `json:"qr_code_link"`
-	CancelPaymentLink string `json:"cancel_payment_link"`
+	QRCode            string `json:"qr_kode_link"`
+	CancelPaymentLink string `json:"batal_transaksi_link"`
 }
 
 func FromMidBank(res coreapi.ChargeResponse, produk, NoHp, bank string, nominal, harga int64) RespBank {
