@@ -43,8 +43,8 @@ func (r *repositoryUser) GetByEmail(email string) (models.User, error) {
 
 func (r *repositoryUser) GetUserDataById(id uint) (models.User, error) {
 	user := models.User{}
-	data := r.DB.Where("id = ?", id).Find(&user)
-	if data.RowsAffected < 1 {
+	data := r.DB.Where("id = ?", id).Find(&user).Error
+	if data != nil {
 		return user, errors.New("User tidak ditemukan")
 	}
 	return user, nil
@@ -86,14 +86,18 @@ func (r *repositoryUser) GetUserByEmail(email string) (models.User, error) {
 
 func (r *repositoryUser) UpdatePassword(email, password string) error {
 	user := models.User{}
-	err := r.DB.Model(&user).Where("email = ?", email).Update("password", password).Error
+	err := r.DB.Model(&user).Where("email = ?", email).Update("password", password).Update("di_update_pada", time.Now()).Error
 	if err != nil {
-		return errors.New("Database Error")
+		return err
 	}
+	return nil
+}
+
+func (r *repositoryUser) UpdateResetTable(email string) error {
 	reset := models.ResetPassword{}
-	err = r.DB.Model(&reset).Where("email = ?", email).Where("selesai = ?", false).Update("selesai", true).Error
+	err := r.DB.Model(&reset).Where("email = ?", email).Where("selesai = ?", false).Update("selesai", true).Error
 	if err != nil {
-		return errors.New("Database Error")
+		return errors.New("database error")
 	}
 	return nil
 }

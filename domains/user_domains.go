@@ -10,6 +10,7 @@ type UserDomain interface {
 	GetResetPassword(email string) (models.ResetPassword, error)
 	UpdatePassword(email, password string) error
 	GetUserDataById(id uint) (models.User, error)
+	UpdateResetTable(email string) error
 	UpdateUserData(id uint, user models.User) error
 }
 

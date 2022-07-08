@@ -38,11 +38,11 @@ func (r *RepositoryTransaksi) GetListTransactionByUserId(userid uint) []models.T
 func (r *RepositoryTransaksi) GetUserTransactions(id uint, filter string) []models.Transaksi {
 	transactions := []models.Transaksi{}
 	if filter == "berhasil" {
-		r.DB.Where("user_id = ?", id).Where("status = ?", "settlement").Preload(clause.Associations).Find(&transactions)
+		r.DB.Where("user_id = ?", id).Where("status = ?", "settlement").Preload(clause.Associations).Preload("Produk." + clause.Associations).Find(&transactions)
 	} else if filter == "tertunda" {
-		r.DB.Where("user_id = ?", id).Where("status = ?", "pending").Preload(clause.Associations).Find(&transactions)
+		r.DB.Where("user_id = ?", id).Where("status = ?", "pending").Preload(clause.Associations).Preload("Produk." + clause.Associations).Find(&transactions)
 	} else if filter == "gagal" {
-		r.DB.Where("user_id = ?", id).Where("status = ?", "cancel").Preload(clause.Associations).Find(&transactions)
+		r.DB.Where("user_id = ?", id).Where("status = ?", "cancel").Or("status = ?", "expire").Preload(clause.Associations).Preload("Produk." + clause.Associations).Find(&transactions)
 	} else {
 		r.DB.Preload(clause.Associations).Preload("Produk."+clause.Associations).Where("user_id = ?", id).Find(&transactions)
 	}

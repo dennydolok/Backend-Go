@@ -25,12 +25,12 @@ func RegisterMainAPI(e *echo.Echo, conf config.Config) {
 	}
 	produkAPI := e.Group("/produk")
 	produkAPI.Use(middleware.CORS())
-	produkAPI.POST("/tambah", controllerProduk.AddProduct, middleware.RemoveTrailingSlash(), middleware.Logger(), middleware.JWT([]byte(conf.SECRET_KEY)))
+	produkAPI.POST("", controllerProduk.AddProduct, middleware.RemoveTrailingSlash(), middleware.Logger(), middleware.JWT([]byte(conf.SECRET_KEY)))
 	produkAPI.GET("", controllerProduk.GetProdukByKategoriProvider, middleware.RemoveTrailingSlash(), middleware.Logger(), middleware.JWT([]byte(conf.SECRET_KEY)))
 	produkAPI.GET("/:id", controllerProduk.GetProdukById, middleware.RemoveTrailingSlash(), middleware.Logger(), middleware.JWT([]byte(conf.SECRET_KEY)))
 	produkAPI.DELETE("/:id", controllerProduk.DeleteProdukById, middleware.RemoveTrailingSlash(), middleware.Logger(), middleware.JWT([]byte(conf.SECRET_KEY)))
 	produkAPI.GET("/pilih", controllerProduk.GetPurchaseableProduct, middleware.RemoveTrailingSlash(), middleware.Logger(), middleware.JWT([]byte(conf.SECRET_KEY)))
-	produkAPI.PUT("/update/:id", controllerProduk.UpdateProductById, middleware.RemoveTrailingSlash(), middleware.Logger(), middleware.JWT([]byte(conf.SECRET_KEY)))
+	produkAPI.PUT("/:id", controllerProduk.UpdateProductById, middleware.RemoveTrailingSlash(), middleware.Logger(), middleware.JWT([]byte(conf.SECRET_KEY)))
 
 	providerAPI := e.Group("/provider")
 	providerAPI.Use(middleware.CORS())
@@ -59,7 +59,7 @@ func RegisterMainAPI(e *echo.Echo, conf config.Config) {
 
 	userRepository := repositories.NewUserRepository(database)
 	userService := services.NewUserService(userRepository, conf)
-	controllerUser := userController{
+	controllerUser := UserController{
 		services: userService,
 	}
 	userAPI := e.Group("/user")

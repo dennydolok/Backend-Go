@@ -7,6 +7,7 @@ type Transaksi struct {
 	OrderID        string `json:"order_id"`
 	TipePembayaran string `json:"payment_type" form:"payment_type"`
 	Bank           string `json:"bank" form:"bank"`
+	NomorHP        string `json:"nomor_handphone" form:"nomor_handphone"`
 	WaktuTransaksi string `json:"transaction_time"`
 	TransaksiID    string `json:"transaction_id"`
 	WaktuBayar     string `json:"settlement_time"`

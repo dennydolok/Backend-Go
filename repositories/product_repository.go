@@ -79,12 +79,13 @@ func (r *repositoriProduk) GetPurchaseableProduct(kategoriid, providerid uint) i
 		Nama          string `json:"nama"`
 		Nominal       int    `json:"nominal"`
 		Harga         int    `json:"harga"`
+		Deskripsi     string `json:"deskripsi"`
 		Nama_kategori string `json:"nama_kategori"`
 		Nama_provider string `json:"nama_provider"`
 		Tersedia      bool   `json:"tersedia"`
 	}
 	var result []Result
-	r.DB.Raw("SELECT p.id AS id, p.nama AS nama, p.nominal AS nominal, p.harga AS harga, pr.nama AS nama_provider, c.nama AS nama_kategori, IF(p.nominal <= s.saldo, 1, 0) AS tersedia FROM produks AS p JOIN providers AS pr ON p.provider_id = pr.id JOIN kategoris c ON p.kategori_id = c.id JOIN saldos s ON s.kategori_id = c.id WHERE p.kategori_id = ? AND p.provider_id = ? AND p.dihapus IS NULL GROUP BY p.id;", kategoriid, providerid).Scan(&result)
+	r.DB.Raw("SELECT p.id AS id, p.nama AS nama, p.nominal AS nominal, p.harga AS harga, p.deskripsi AS deskripsi, pr.nama AS nama_provider, c.nama AS nama_kategori, IF(p.nominal <= s.saldo, 1, 0) AS tersedia FROM produks AS p JOIN providers AS pr ON p.provider_id = pr.id JOIN kategoris c ON p.kategori_id = c.id JOIN saldos s ON s.kategori_id = c.id WHERE p.kategori_id = ? AND p.provider_id = ? AND p.dihapus IS NULL GROUP BY p.id;", kategoriid, providerid).Scan(&result)
 	fmt.Println(result, providerid, kategoriid)
 	return result
 }

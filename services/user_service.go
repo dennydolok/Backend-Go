@@ -126,6 +126,10 @@ func (s *serviceUser) UpdatePassword(email, password, code string) error {
 	if err != nil {
 		return err
 	}
+	err = s.repo.UpdateResetTable(email)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

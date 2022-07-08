@@ -10,11 +10,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type userController struct {
+type UserController struct {
 	services domains.UserService
 }
 
-func (s *userController) Register(c echo.Context) error {
+func (s *UserController) Register(c echo.Context) error {
 	newUser := models.User{}
 	c.Bind(&newUser)
 	err := s.services.Register(newUser)
@@ -36,7 +36,7 @@ func (s *userController) Register(c echo.Context) error {
 	})
 }
 
-func (s *userController) GetUserData(c echo.Context) error {
+func (s *UserController) GetUserData(c echo.Context) error {
 	userId := helper.GetUserId(c.Request().Header.Get("Authorization"))
 	user, err := s.services.GetUserDataById(uint(userId))
 	if err != nil {
@@ -51,7 +51,7 @@ func (s *userController) GetUserData(c echo.Context) error {
 	})
 }
 
-func (s *userController) Verification(c echo.Context) error {
+func (s *UserController) Verification(c echo.Context) error {
 	type body struct {
 		Email string `form:"email" json:"email"`
 		Code  string `form:"kode" json:"kode"`
@@ -73,7 +73,7 @@ func (s *userController) Verification(c echo.Context) error {
 	})
 }
 
-func (s *userController) Login(c echo.Context) error {
+func (s *UserController) Login(c echo.Context) error {
 	login := make(map[string]interface{})
 	c.Bind(&login)
 	token, code := s.services.Login(login["email"].(string), login["password"].(string))
@@ -98,7 +98,7 @@ func (s *userController) Login(c echo.Context) error {
 	})
 }
 
-func (s *userController) CreateResetPassword(c echo.Context) error {
+func (s *UserController) CreateResetPassword(c echo.Context) error {
 	type body struct {
 		Email string `form:"email" json:"email"`
 	}
@@ -118,7 +118,7 @@ func (s *userController) CreateResetPassword(c echo.Context) error {
 	})
 }
 
-func (s *userController) UpdatePassword(c echo.Context) error {
+func (s *UserController) UpdatePassword(c echo.Context) error {
 	type body struct {
 		Email    string `form:"email" json:"email"`
 		Password string `form:"password" json:"password"`
@@ -139,17 +139,17 @@ func (s *userController) UpdatePassword(c echo.Context) error {
 	})
 }
 
-func (s *userController) Testing(c echo.Context) error {
+func (s *UserController) Testing(c echo.Context) error {
 	reqToken := c.Request().Header.Get("Authorization")
-	role := helper.GetClaim(reqToken)
+	// role := helper.GetClaim(reqToken)
 
 	return c.JSON(http.StatusCreated, map[string]interface{}{
 		"kode":  http.StatusCreated,
-		"pesan": role,
+		"pesan": reqToken,
 	})
 }
 
-func (s *userController) UpdateUserData(c echo.Context) error {
+func (s *UserController) UpdateUserData(c echo.Context) error {
 	user := models.User{}
 	c.Bind(&user)
 	userId := helper.GetUserId(c.Request().Header.Get("Authorization"))

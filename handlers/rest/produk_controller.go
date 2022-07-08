@@ -35,7 +35,12 @@ func (cont *productController) AddSaldo(c echo.Context) error {
 	}
 	saldobaru, _ := strconv.Atoi(c.FormValue("saldo"))
 	kategoriid, _ := strconv.Atoi(c.FormValue("kategori_id"))
-	fmt.Println(saldobaru, kategoriid)
+	if saldobaru < 1 {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"kode":  http.StatusInternalServerError,
+			"pesan": "Saldo harus diisi",
+		})
+	}
 	err := cont.services.AddSaldo(saldobaru, uint(kategoriid))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{

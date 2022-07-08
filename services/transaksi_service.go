@@ -20,6 +20,7 @@ func (s *serviceTransaksi) NewTransactionBank(transaksi models.Transaksi) (error
 	midtrans.Environment = midtrans.Sandbox
 	produk := s.repo.GetProdukById(transaksi.ProdukID)
 	user := s.repo.GetUserById(transaksi.UserID)
+
 	item := midtrans.ItemDetails{
 		ID:       strconv.FormatUint(uint64(produk.ID), 10),
 		Name:     produk.Nama,
@@ -57,7 +58,7 @@ func (s *serviceTransaksi) NewTransactionBank(transaksi models.Transaksi) (error
 	transaksi.Status = Response.TransactionStatus
 	errDB := s.repo.TransaksiBaru(transaksi)
 
-	Result := helper.FromMidBank(*Response, produk.Nama, user.NomorHP, transaksi.Bank, int64(produk.Nominal), int64(produk.Harga))
+	Result := helper.FromMidBank(*Response, produk.Nama, transaksi.NomorHP, transaksi.Bank, int64(produk.Nominal), int64(produk.Harga))
 	if err != nil {
 		return errDB, ""
 	}
@@ -102,7 +103,7 @@ func (s *serviceTransaksi) NewTransactionEWallet(transaksi models.Transaksi) (er
 	transaksi.TransaksiID = Response.TransactionID
 	transaksi.Status = Response.TransactionStatus
 	errDB := s.repo.TransaksiBaru(transaksi)
-	res := helper.FromMidEWallet(*Response, produk.Nama, user.NomorHP, int64(produk.Nominal), int64(produk.Harga))
+	res := helper.FromMidEWallet(*Response, produk.Nama, transaksi.NomorHP, int64(produk.Nominal), int64(produk.Harga))
 	if err != nil {
 		return errDB, ""
 	}
@@ -142,7 +143,6 @@ func (s *serviceTransaksi) GetListTransactionByUserId(userid uint) []models.Tran
 func (s *serviceTransaksi) GetAllTransaction() []models.Transaksi {
 	return s.repo.GetAllTransaction()
 }
-
 
 func NewTransaksiService(repo domains.TransaksiDomain) domains.TransaksiService {
 	return &serviceTransaksi{
