@@ -5,6 +5,7 @@ import (
 	"WallE/helper"
 	"WallE/models"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -80,9 +81,10 @@ func (cont *transaksiController) GetUserTransactions(c echo.Context) error {
 	filter := c.QueryParam("filter")
 	userId := helper.GetUserId(c.Request().Header.Get("Authorization"))
 	transactions := cont.services.GetUserTransactions(uint(userId), filter)
+	data := helper.ToArrayJsonBody(transactions)
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"kode":      http.StatusOK,
-		"transaksi": transactions,
+		"transaksi": data,
 	})
 }
 
@@ -97,8 +99,33 @@ func (cont *transaksiController) GetAllTransaction(c echo.Context) error {
 		})
 	}
 	transactions := cont.services.GetAllTransaction(filter)
+	data := helper.ToArrayJsonBody(transactions)
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"kode":      http.StatusOK,
-		"transaksi": transactions,
+		"transaksi": data,
+	})
+}
+
+func (cont *transaksiController) GetTransactionById(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+	if id == 0 {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"kode":  http.StatusInternalServerError,
+			"pesan": "error",
+		})
+	}
+	transactions := cont.services.GetTransactionById(uint(id))
+	data := helper.ToJsonBody(transactions)
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"kode":      http.StatusOK,
+		"transaksi": data,
+	})
+}
+
+func (cont *transaksiController) GetTotalIncome(c echo.Context) error {
+	income := cont.services.GetTotalIncome()
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"kode":      http.StatusOK,
+		"pemasukan": income,
 	})
 }

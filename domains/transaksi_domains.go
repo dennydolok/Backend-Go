@@ -12,8 +12,10 @@ type TransaksiDomain interface {
 	ReduceBalance(id uint, balance int) error
 	RefundBalance(id uint, balance int) error
 	GetTransactionByOrderId(orderid string) models.Transaksi
+	GetTransactionById(id uint) models.Transaksi
 	GetAllTransaction(filter string) []models.Transaksi
 	GetLastId() uint
+	GetTotalIncome() int
 }
 
 type TransaksiService interface {
@@ -23,4 +25,6 @@ type TransaksiService interface {
 	GetListTransactionByUserId(userid uint) []models.Transaksi
 	GetUserTransactions(id uint, filter string) []models.Transaksi
 	GetAllTransaction(filter string) []models.Transaksi
+	GetTransactionById(id uint) models.Transaksi
+	GetTotalIncome() int
 }

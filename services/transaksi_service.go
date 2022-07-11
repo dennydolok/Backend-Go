@@ -149,6 +149,15 @@ func (s *serviceTransaksi) GetAllTransaction(filter string) []models.Transaksi {
 	return s.repo.GetAllTransaction(filter)
 }
 
+func (s *serviceTransaksi) GetTransactionById(id uint) models.Transaksi {
+	transaksi := s.repo.GetTransactionById(id)
+	return transaksi
+}
+
+func (s *serviceTransaksi) GetTotalIncome() int {
+	return s.repo.GetTotalIncome()
+}
+
 func NewTransaksiService(repo domains.TransaksiDomain) domains.TransaksiService {
 	return &serviceTransaksi{
 		repo: repo,

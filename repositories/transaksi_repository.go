@@ -42,7 +42,7 @@ func (r *RepositoryTransaksi) GetUserTransactions(id uint, filter string) []mode
 	} else if filter == "tertunda" {
 		r.DB.Where("user_id = ?", id).Where("status = ?", "pending").Preload(clause.Associations).Preload("Produk." + clause.Associations).Find(&transactions)
 	} else if filter == "gagal" {
-		r.DB.Where("user_id = ?", id).Where("status = ?", "cancel").Or("status = ?", "expire").Preload(clause.Associations).Preload("Produk." + clause.Associations).Find(&transactions)
+		r.DB.Where("status = ?", "cancel").Or("status = ?", "expire").Where("user_id = ?", id).Preload(clause.Associations).Preload("Produk." + clause.Associations).Find(&transactions)
 	} else {
 		r.DB.Preload(clause.Associations).Preload("Produk."+clause.Associations).Where("user_id = ?", id).Find(&transactions)
 	}
@@ -110,6 +110,18 @@ func (r *RepositoryTransaksi) GetAllTransaction(filter string) []models.Transaks
 		r.DB.Preload(clause.Associations).Preload("Produk." + clause.Associations).Find(&transactions)
 	}
 	return transactions
+}
+
+func (r *RepositoryTransaksi) GetTransactionById(id uint) models.Transaksi {
+	transaksi := models.Transaksi{}
+	r.DB.Preload(clause.Associations).Preload("Produk."+clause.Associations).Where("id = ?", id).Find(&transaksi)
+	return transaksi
+}
+
+func (r *RepositoryTransaksi) GetTotalIncome() int {
+	var total int
+	r.DB.Table("transaksis").Where("status = ?", "settlement").Select("sum(total_harga)").Row().Scan(&total)
+	return total
 }
 
 func NewTransaksiRepository(db *gorm.DB) domains.TransaksiDomain {

@@ -56,6 +56,8 @@ func RegisterMainAPI(e *echo.Echo, conf config.Config) {
 	transaksiAPI.POST("/update", controllerTransaksi.UpdateTransaksi, middleware.RemoveTrailingSlash(), middleware.Logger())
 	transaksiAPI.GET("/user", controllerTransaksi.GetUserTransactions, middleware.RemoveTrailingSlash(), middleware.Logger(), middleware.JWT([]byte(conf.SECRET_KEY)))
 	transaksiAPI.GET("", controllerTransaksi.GetAllTransaction, middleware.RemoveTrailingSlash(), middleware.Logger(), middleware.JWT([]byte(conf.SECRET_KEY)))
+	transaksiAPI.GET("/:id", controllerTransaksi.GetTransactionById, middleware.RemoveTrailingSlash(), middleware.Logger(), middleware.JWT([]byte(conf.SECRET_KEY)))
+	transaksiAPI.GET("/pemasukan", controllerTransaksi.GetTotalIncome, middleware.RemoveTrailingSlash(), middleware.Logger(), middleware.JWT([]byte(conf.SECRET_KEY)))
 
 	userRepository := repositories.NewUserRepository(database)
 	userService := services.NewUserService(userRepository, conf)

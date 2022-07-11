@@ -155,6 +155,13 @@ func (cont *productController) GetPurchaseableProduct(c echo.Context) error {
 }
 
 func (cont *productController) UpdateProductById(c echo.Context) error {
+	produkid, _ := strconv.Atoi(c.Param("id"))
+	if produkid == 0 {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"kode":  http.StatusInternalServerError,
+			"pesan": "error",
+		})
+	}
 	role := helper.GetClaim(c.Request().Header.Get("Authorization"))
 	checkAdmin := helper.CheckAdmin(role)
 	if checkAdmin != nil {
@@ -164,10 +171,7 @@ func (cont *productController) UpdateProductById(c echo.Context) error {
 		})
 	}
 	produk := models.Produk{}
-	produkid, _ := strconv.Atoi(c.Param("id"))
-	fmt.Println(produkid)
 	c.Bind(&produk)
-	// fmt.Println(produk)
 	err := cont.services.UpdateProductById(uint(produkid), produk)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
