@@ -64,7 +64,6 @@ func RegisterMainAPI(e *echo.Echo, conf config.Config) {
 	}
 	userAPI := e.Group("/user")
 	userAPI.Use(middleware.CORS())
-	userAPI.GET("/testing", controllerUser.Testing, middleware.Logger(), middleware.JWT([]byte(conf.SECRET_KEY)))
 	userAPI.GET("", controllerUser.GetUserData, middleware.RemoveTrailingSlash(), middleware.Logger(), middleware.JWT([]byte(conf.SECRET_KEY)))
 	userAPI.PUT("", controllerUser.UpdateUserData, middleware.RemoveTrailingSlash(), middleware.Logger(), middleware.JWT([]byte(conf.SECRET_KEY)))
 	userAPI.POST("", controllerUser.Register, middleware.RemoveTrailingSlash(), middleware.Logger())

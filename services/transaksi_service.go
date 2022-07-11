@@ -20,7 +20,9 @@ func (s *serviceTransaksi) NewTransactionBank(transaksi models.Transaksi) (error
 	midtrans.Environment = midtrans.Sandbox
 	produk := s.repo.GetProdukById(transaksi.ProdukID)
 	user := s.repo.GetUserById(transaksi.UserID)
-
+	if len(transaksi.NomorHP) == 0 {
+		transaksi.NomorHP = user.NomorHP
+	}
 	item := midtrans.ItemDetails{
 		ID:       strconv.FormatUint(uint64(produk.ID), 10),
 		Name:     produk.Nama,
@@ -70,6 +72,9 @@ func (s *serviceTransaksi) NewTransactionEWallet(transaksi models.Transaksi) (er
 	midtrans.Environment = midtrans.Sandbox
 	produk := s.repo.GetProdukById(transaksi.ProdukID)
 	user := s.repo.GetUserById(transaksi.UserID)
+	if len(transaksi.NomorHP) == 0 {
+		transaksi.NomorHP = user.NomorHP
+	}
 	item := midtrans.ItemDetails{
 		ID:       strconv.FormatUint(uint64(produk.ID), 10),
 		Name:     produk.Nama,
@@ -140,8 +145,8 @@ func (s *serviceTransaksi) GetListTransactionByUserId(userid uint) []models.Tran
 	return transaksi
 }
 
-func (s *serviceTransaksi) GetAllTransaction() []models.Transaksi {
-	return s.repo.GetAllTransaction()
+func (s *serviceTransaksi) GetAllTransaction(filter string) []models.Transaksi {
+	return s.repo.GetAllTransaction(filter)
 }
 
 func NewTransaksiService(repo domains.TransaksiDomain) domains.TransaksiService {

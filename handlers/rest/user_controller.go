@@ -74,9 +74,13 @@ func (s *UserController) Verification(c echo.Context) error {
 }
 
 func (s *UserController) Login(c echo.Context) error {
-	login := make(map[string]interface{})
+	type info struct {
+		Email    string `json:"email" form:"email"`
+		Password string `json:"password" form:"password"`
+	}
+	login := info{}
 	c.Bind(&login)
-	token, code := s.services.Login(login["email"].(string), login["password"].(string))
+	token, code := s.services.Login(login.Email, login.Password)
 	switch code {
 	case http.StatusNotFound:
 		return c.JSON(http.StatusNotFound, map[string]interface{}{
@@ -104,7 +108,6 @@ func (s *UserController) CreateResetPassword(c echo.Context) error {
 	}
 	var reqBody body
 	c.Bind(&reqBody)
-	fmt.Println(reqBody)
 	err := s.services.CreateResetPassword(reqBody.Email)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -136,16 +139,6 @@ func (s *UserController) UpdatePassword(c echo.Context) error {
 	return c.JSON(http.StatusCreated, map[string]interface{}{
 		"kode":  http.StatusCreated,
 		"pesan": "sukses",
-	})
-}
-
-func (s *UserController) Testing(c echo.Context) error {
-	reqToken := c.Request().Header.Get("Authorization")
-	// role := helper.GetClaim(reqToken)
-
-	return c.JSON(http.StatusCreated, map[string]interface{}{
-		"kode":  http.StatusCreated,
-		"pesan": reqToken,
 	})
 }
 

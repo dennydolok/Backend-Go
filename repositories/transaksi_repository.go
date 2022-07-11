@@ -98,10 +98,18 @@ func (r *RepositoryTransaksi) GetTransactionByOrderId(orderid string) models.Tra
 	return transaksi
 }
 
-func (r *RepositoryTransaksi) GetAllTransaction() []models.Transaksi {
-	transaksi := []models.Transaksi{}
-	r.DB.Preload(clause.Associations).Preload("Produk." + clause.Associations).Find(&transaksi)
-	return transaksi
+func (r *RepositoryTransaksi) GetAllTransaction(filter string) []models.Transaksi {
+	transactions := []models.Transaksi{}
+	if filter == "berhasil" {
+		r.DB.Where("status = ?", "settlement").Preload(clause.Associations).Preload("Produk." + clause.Associations).Find(&transactions)
+	} else if filter == "tertunda" {
+		r.DB.Where("status = ?", "pending").Preload(clause.Associations).Preload("Produk." + clause.Associations).Find(&transactions)
+	} else if filter == "gagal" {
+		r.DB.Where("status = ?", "cancel").Or("status = ?", "expire").Preload(clause.Associations).Preload("Produk." + clause.Associations).Find(&transactions)
+	} else {
+		r.DB.Preload(clause.Associations).Preload("Produk." + clause.Associations).Find(&transactions)
+	}
+	return transactions
 }
 
 func NewTransaksiRepository(db *gorm.DB) domains.TransaksiDomain {

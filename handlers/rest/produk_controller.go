@@ -33,15 +33,20 @@ func (cont *productController) AddSaldo(c echo.Context) error {
 			"pesan": checkAdmin.Error(),
 		})
 	}
-	saldobaru, _ := strconv.Atoi(c.FormValue("saldo"))
-	kategoriid, _ := strconv.Atoi(c.FormValue("kategori_id"))
-	if saldobaru < 1 {
+	type data struct {
+		Saldo      int `json:"saldo" form:"saldo"`
+		KategoriId int `json:"kategori_id" form:"kategori_id"`
+	}
+	dataSaldo := data{}
+	c.Bind(&dataSaldo)
+	fmt.Println(dataSaldo)
+	if dataSaldo.Saldo < 1 {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"kode":  http.StatusInternalServerError,
 			"pesan": "Saldo harus diisi",
 		})
 	}
-	err := cont.services.AddSaldo(saldobaru, uint(kategoriid))
+	err := cont.services.AddSaldo(dataSaldo.Saldo, uint(dataSaldo.KategoriId))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"kode":  http.StatusInternalServerError,
@@ -160,8 +165,9 @@ func (cont *productController) UpdateProductById(c echo.Context) error {
 	}
 	produk := models.Produk{}
 	produkid, _ := strconv.Atoi(c.Param("id"))
+	fmt.Println(produkid)
 	c.Bind(&produk)
-	fmt.Println(produk)
+	// fmt.Println(produk)
 	err := cont.services.UpdateProductById(uint(produkid), produk)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
