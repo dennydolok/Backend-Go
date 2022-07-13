@@ -4,7 +4,6 @@ import (
 	"WallE/domains"
 	"WallE/helper"
 	"WallE/models"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -29,7 +28,7 @@ func (cont *productController) AddSaldo(c echo.Context) error {
 	checkAdmin := helper.CheckAdmin(role)
 	if checkAdmin != nil {
 		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
-			"kode":  http.StatusInternalServerError,
+			"kode":  http.StatusUnauthorized,
 			"pesan": checkAdmin.Error(),
 		})
 	}
@@ -39,7 +38,6 @@ func (cont *productController) AddSaldo(c echo.Context) error {
 	}
 	dataSaldo := data{}
 	c.Bind(&dataSaldo)
-	fmt.Println(dataSaldo)
 	if dataSaldo.Saldo < 1 {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"kode":  http.StatusInternalServerError,
@@ -59,9 +57,7 @@ func (cont *productController) AddSaldo(c echo.Context) error {
 	})
 }
 func (cont *productController) GetProdukByKategori(c echo.Context) error {
-	// kategoriid, _ := strconv.Atoi(c.FormValue("kategori_id"))
 	kategoriid, _ := strconv.Atoi(c.Param("id"))
-	fmt.Println(kategoriid)
 	produk := cont.services.GetProdukByKategori(uint(kategoriid))
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"kode":   http.StatusOK,
@@ -93,7 +89,7 @@ func (cont *productController) AddProduct(c echo.Context) error {
 	checkAdmin := helper.CheckAdmin(role)
 	if checkAdmin != nil {
 		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
-			"kode":  http.StatusInternalServerError,
+			"kode":  http.StatusUnauthorized,
 			"pesan": checkAdmin.Error(),
 		})
 	}
@@ -124,7 +120,7 @@ func (cont *productController) GetSaldo(c echo.Context) error {
 	checkAdmin := helper.CheckAdmin(role)
 	if checkAdmin != nil {
 		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
-			"kode":  http.StatusInternalServerError,
+			"kode":  http.StatusUnauthorized,
 			"pesan": checkAdmin.Error(),
 		})
 	}
@@ -166,7 +162,7 @@ func (cont *productController) UpdateProductById(c echo.Context) error {
 	checkAdmin := helper.CheckAdmin(role)
 	if checkAdmin != nil {
 		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
-			"kode":  http.StatusInternalServerError,
+			"kode":  http.StatusUnauthorized,
 			"pesan": checkAdmin.Error(),
 		})
 	}
@@ -190,7 +186,7 @@ func (cont *productController) DeleteProdukById(c echo.Context) error {
 	checkAdmin := helper.CheckAdmin(role)
 	if checkAdmin != nil {
 		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
-			"kode":  http.StatusInternalServerError,
+			"kode":  http.StatusUnauthorized,
 			"pesan": checkAdmin.Error(),
 		})
 	}

@@ -12,7 +12,7 @@ type Produk struct {
 	Nominal      int            `json:"nominal" form:"nominal"`
 	Harga        int            `json:"harga" form:"harga"`
 	Deskripsi    string         `json:"deskripsi" form:"deskripsi"`
-	KategoriID   uint           `json:"kategori_id"`
+	KategoriID   uint           `json:"kategori_id" form:"kategori_id"`
 	ProviderID   uint           `json:"provider_id"  form:"provider_id"`
 	DibuatPada   time.Time      `json:"dibuat_pada"`
 	DiupdatePada time.Time      `json:"diupdate_pada"`

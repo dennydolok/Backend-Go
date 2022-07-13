@@ -73,6 +73,34 @@ func (_m *TransaksiDomain) GetProdukById(id uint) models.Produk {
 	return r0
 }
 
+// GetTotalIncome provides a mock function with given fields:
+func (_m *TransaksiDomain) GetTotalIncome() int {
+	ret := _m.Called()
+
+	var r0 int
+	if rf, ok := ret.Get(0).(func() int); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	return r0
+}
+
+// GetTransactionById provides a mock function with given fields: id
+func (_m *TransaksiDomain) GetTransactionById(id uint) models.Transaksi {
+	ret := _m.Called(id)
+
+	var r0 models.Transaksi
+	if rf, ok := ret.Get(0).(func(uint) models.Transaksi); ok {
+		r0 = rf(id)
+	} else {
+		r0 = ret.Get(0).(models.Transaksi)
+	}
+
+	return r0
+}
+
 // GetTransactionByOrderId provides a mock function with given fields: orderid
 func (_m *TransaksiDomain) GetTransactionByOrderId(orderid string) models.Transaksi {
 	ret := _m.Called(orderid)

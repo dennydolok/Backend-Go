@@ -45,6 +45,34 @@ func (_m *TransaksiService) GetListTransactionByUserId(userid uint) []models.Tra
 	return r0
 }
 
+// GetTotalIncome provides a mock function with given fields:
+func (_m *TransaksiService) GetTotalIncome() int {
+	ret := _m.Called()
+
+	var r0 int
+	if rf, ok := ret.Get(0).(func() int); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	return r0
+}
+
+// GetTransactionById provides a mock function with given fields: id
+func (_m *TransaksiService) GetTransactionById(id uint) models.Transaksi {
+	ret := _m.Called(id)
+
+	var r0 models.Transaksi
+	if rf, ok := ret.Get(0).(func(uint) models.Transaksi); ok {
+		r0 = rf(id)
+	} else {
+		r0 = ret.Get(0).(models.Transaksi)
+	}
+
+	return r0
+}
+
 // GetUserTransactions provides a mock function with given fields: id, filter
 func (_m *TransaksiService) GetUserTransactions(id uint, filter string) []models.Transaksi {
 	ret := _m.Called(id, filter)

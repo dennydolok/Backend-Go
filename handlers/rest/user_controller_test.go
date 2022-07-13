@@ -251,7 +251,7 @@ func TestUpdatePassword(t *testing.T) {
 	})
 }
 
-func TestUpdateUserData(t *testing.T){
+func TestUpdateUserData(t *testing.T) {
 	service.On("UpdateUserData", mock.Anything, mock.Anything).Return(nil).Once()
 	service.On("UpdateUserData", mock.Anything, mock.Anything).Return(errors.New("error")).Once()
 	userController := UserController{
