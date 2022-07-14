@@ -21,6 +21,15 @@ func InitMysql(conf config.Config) *gorm.DB {
 	if err != nil {
 		fmt.Println("Cannot connect to database : ", err)
 	}
-	DB.AutoMigrate(&models.Role{}, &models.User{}, &models.ResetPassword{})
+	DB.AutoMigrate(
+		&models.Role{},
+		&models.User{},
+		&models.ResetPassword{},
+		&models.Provider{},
+		&models.Kategori{},
+		&models.Saldo{},
+		&models.Produk{},
+		&models.Transaksi{},
+	)
 	return DB
 }
