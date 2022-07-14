@@ -59,9 +59,6 @@ func (s *serviceProduk) GetPurchaseableProduct(kategoriid, providerid uint) inte
 }
 
 func (s *serviceProduk) UpdateProductById(id uint, produk models.Produk) error {
-	// produk.KategoriID = s.repo.GetProdukById(uint(id)).KategoriID
-	// produk.ProviderID = s.repo.GetProdukById(uint(id)).ProviderID
-	// fmt.Println(produk)
 	return s.repo.UpdateProductById(id, produk)
 }
 

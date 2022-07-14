@@ -13,12 +13,14 @@ type RepositoryTransaksi struct {
 	DB *gorm.DB
 }
 
-func (r *RepositoryTransaksi) TransaksiBaru(transaksi models.Transaksi) error {
+func (r *RepositoryTransaksi) TransaksiBaru(transaksi models.Transaksi) (models.Transaksi, error) {
 	err := r.DB.Create(&transaksi).Error
+	dataTransaksi := models.Transaksi{}
+	r.DB.Last(&dataTransaksi)
 	if err != nil {
-		return err
+		return dataTransaksi, err
 	}
-	return nil
+	return dataTransaksi, nil
 }
 
 func (r *RepositoryTransaksi) UpdateTransaksi(orderid string, transkasi models.Transaksi) error {

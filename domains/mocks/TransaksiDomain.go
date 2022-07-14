@@ -174,17 +174,24 @@ func (_m *TransaksiDomain) RefundBalance(id uint, balance int) error {
 }
 
 // TransaksiBaru provides a mock function with given fields: transaksi
-func (_m *TransaksiDomain) TransaksiBaru(transaksi models.Transaksi) error {
+func (_m *TransaksiDomain) TransaksiBaru(transaksi models.Transaksi) (models.Transaksi, error) {
 	ret := _m.Called(transaksi)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(models.Transaksi) error); ok {
+	var r0 models.Transaksi
+	if rf, ok := ret.Get(0).(func(models.Transaksi) models.Transaksi); ok {
 		r0 = rf(transaksi)
 	} else {
-		r0 = ret.Error(0)
+		r0 = ret.Get(0).(models.Transaksi)
 	}
 
-	return r0
+	var r1 error
+	if rf, ok := ret.Get(1).(func(models.Transaksi) error); ok {
+		r1 = rf(transaksi)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // UpdateTransaksi provides a mock function with given fields: orderid, transkasi

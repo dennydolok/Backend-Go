@@ -27,6 +27,7 @@ func GetShortCategory(id uint) string {
 }
 
 type RespBank struct {
+	Id               uint   `json:"id"`
 	TransaksiId      string `json:"transaksi_id"`
 	OrderId          string `json:"order_id"`
 	TanggalTransaksi string `json:"tanggal_transaksi"`
@@ -40,6 +41,7 @@ type RespBank struct {
 }
 
 type RespEWallet struct {
+	Id                uint   `json:"id"`
 	TransaksiId       string `json:"transaksi_id"`
 	OrderId           string `json:"order_id"`
 	TanggalTransaksi  string `json:"tanggal_transaksi"`
@@ -70,7 +72,7 @@ type RespBody struct {
 	User           models.User   `json:"user"`
 }
 
-func FromMidBank(res coreapi.ChargeResponse, produk, NoHp, bank string, nominal, harga int64) RespBank {
+func FromMidBank(res coreapi.ChargeResponse, id uint, produk, NoHp, bank string, nominal, harga int64) RespBank {
 	WaktuTanggal := strings.Split(res.TransactionTime, " ")
 	var vanumber string
 
@@ -82,6 +84,7 @@ func FromMidBank(res coreapi.ChargeResponse, produk, NoHp, bank string, nominal,
 	}
 
 	return RespBank{
+		Id:               id,
 		TransaksiId:      res.TransactionID,
 		OrderId:          res.OrderID,
 		TanggalTransaksi: WaktuTanggal[0],
@@ -95,9 +98,10 @@ func FromMidBank(res coreapi.ChargeResponse, produk, NoHp, bank string, nominal,
 	}
 }
 
-func FromMidEWallet(res coreapi.ChargeResponse, produk, NoHp string, nominal, harga int64) RespEWallet {
+func FromMidEWallet(res coreapi.ChargeResponse, id uint, produk, NoHp string, nominal, harga int64) RespEWallet {
 	WaktuTanggal := strings.Split(res.TransactionTime, " ")
 	return RespEWallet{
+		Id:                id,
 		TransaksiId:       res.TransactionID,
 		OrderId:           res.OrderID,
 		TanggalTransaksi:  WaktuTanggal[0],
@@ -131,26 +135,26 @@ func ToJsonBody(transaksi models.Transaksi) RespBody {
 	}
 }
 
-func ToArrayJsonBody(transaksi []models.Transaksi) []RespBody{
+func ToArrayJsonBody(transaksi []models.Transaksi) []RespBody {
 	Arr := []RespBody{}
-	for _ , j := range transaksi{
-		trans :=  RespBody{
-			ID: j.ID,
-			Status: j.Status, 
-			TotalHarga: j.TotalHarga,
-			OrderID: j.OrderID,
+	for _, j := range transaksi {
+		trans := RespBody{
+			ID:             j.ID,
+			Status:         j.Status,
+			TotalHarga:     j.TotalHarga,
+			OrderID:        j.OrderID,
 			TipePembayaran: j.TipePembayaran,
-			Bank: j.Bank,
-			NomorHP: j.NomorHP,
+			Bank:           j.Bank,
+			NomorHP:        j.NomorHP,
 			WaktuTransaksi: j.WaktuTransaksi,
-			TransaksiID: j.TransaksiID,
-			WaktuBayar: j.WaktuBayar,
-			UserID: j.UserID,
-			ProdukID: j.ProdukID,
-			Produk: j.Produk,
-			User: j.User,
+			TransaksiID:    j.TransaksiID,
+			WaktuBayar:     j.WaktuBayar,
+			UserID:         j.UserID,
+			ProdukID:       j.ProdukID,
+			Produk:         j.Produk,
+			User:           j.User,
 		}
-		Arr = append(Arr, trans)	
+		Arr = append(Arr, trans)
 	}
 	return Arr
 }

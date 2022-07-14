@@ -19,7 +19,7 @@ func (cont *transaksiController) NewTransaksiWallet(c echo.Context) error {
 	checkCustomer := helper.CheckCustomer(role)
 	if checkCustomer != nil {
 		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
-			"kode":  http.StatusInternalServerError,
+			"kode":  http.StatusUnauthorized,
 			"pesan": checkCustomer.Error(),
 		})
 	}
@@ -28,7 +28,7 @@ func (cont *transaksiController) NewTransaksiWallet(c echo.Context) error {
 	err, res := cont.services.NewTransactionEWallet(transaksi)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"kode":  http.StatusOK,
+			"kode":  http.StatusInternalServerError,
 			"error": res,
 		})
 	}
@@ -68,7 +68,7 @@ func (cont *transaksiController) UpdateTransaksi(c echo.Context) error {
 	err := cont.services.UpdateTransaksi(transaksi.OrderID, transaksi)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"kode":  http.StatusOK,
+			"kode":  http.StatusInternalServerError,
 			"error": err,
 		})
 	}
@@ -94,7 +94,7 @@ func (cont *transaksiController) GetAllTransaction(c echo.Context) error {
 	filter := c.QueryParam("filter")
 	if checkAdmin != nil {
 		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
-			"kode":  http.StatusInternalServerError,
+			"kode":  http.StatusUnauthorized,
 			"pesan": checkAdmin.Error(),
 		})
 	}

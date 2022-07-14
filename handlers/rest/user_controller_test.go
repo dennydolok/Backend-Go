@@ -15,16 +15,16 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-var service m.UserService
+var userService m.UserService
 
 func TestRegister(t *testing.T) {
 
-	service.On("Register", mock.Anything).Return(errors.New("error")).Once()
-	service.On("Register", mock.Anything).Return(errors.New("resend")).Once()
-	service.On("Register", mock.Anything).Return(nil).Once()
+	userService.On("Register", mock.Anything).Return(errors.New("error")).Once()
+	userService.On("Register", mock.Anything).Return(errors.New("resend")).Once()
+	userService.On("Register", mock.Anything).Return(nil).Once()
 
 	userController := UserController{
-		services: &service,
+		services: &userService,
 	}
 
 	e := echo.New()
@@ -66,10 +66,10 @@ func TestGetUserData(t *testing.T) {
 		DiUpdatePada: time.Now(),
 		RoleID:       uint(1),
 	}
-	service.On("GetUserDataById", mock.AnythingOfType("uint")).Return(user, nil).Once()
-	service.On("GetUserDataById", mock.AnythingOfType("uint")).Return(user, errors.New("error")).Once()
+	userService.On("GetUserDataById", mock.AnythingOfType("uint")).Return(user, nil).Once()
+	userService.On("GetUserDataById", mock.AnythingOfType("uint")).Return(user, errors.New("error")).Once()
 	userController := UserController{
-		services: &service,
+		services: &userService,
 	}
 
 	e := echo.New()
@@ -99,11 +99,11 @@ func TestGetUserData(t *testing.T) {
 
 func TestVerification(t *testing.T) {
 
-	service.On("VerifikasiRegister", mock.Anything, mock.Anything).Return("test", errors.New("error")).Once()
-	service.On("VerifikasiRegister", mock.Anything, mock.Anything).Return("sukses", nil).Once()
+	userService.On("VerifikasiRegister", mock.Anything, mock.Anything).Return("test", errors.New("error")).Once()
+	userService.On("VerifikasiRegister", mock.Anything, mock.Anything).Return("sukses", nil).Once()
 
 	userController := UserController{
-		services: &service,
+		services: &userService,
 	}
 
 	e := echo.New()
@@ -125,11 +125,12 @@ func TestVerification(t *testing.T) {
 }
 
 func TestLogin(t *testing.T) {
-	service.On("Login", mock.Anything, mock.Anything).Return("email not found", 404).Once()
-	service.On("Login", mock.Anything, mock.Anything).Return("failed login", 401).Once()
-	service.On("Login", mock.Anything, mock.Anything).Return("success login", 200).Once()
+	userService.On("Login", mock.Anything, mock.Anything).Return("email not found", 404).Once()
+	userService.On("Login", mock.Anything, mock.Anything).Return("failed login", 401).Once()
+	userService.On("Login", mock.Anything, mock.Anything).Return("success login", 200).Once()
+	userService.On("Login", mock.Anything, mock.Anything).Return("failed login not verified", 406).Once()
 	userController := UserController{
-		services: &service,
+		services: &userService,
 	}
 	postBody := map[string]interface{}{
 		"email":    "test@gmail.com",
@@ -173,13 +174,24 @@ func TestLogin(t *testing.T) {
 		userController.Login(eContext)
 		assert.Equal(t, 200, w.Result().StatusCode)
 	})
+	t.Run("failed login", func(t *testing.T) {
+		bearer := "Bearer " + token
+		r := httptest.NewRequest("POST", "/", bytes.NewBuffer(body))
+		r.Header.Set("Authorization", bearer)
+		r.Header.Add("Accept", "application/json")
+		r.Body.Close()
+		w := httptest.NewRecorder()
+		eContext := e.NewContext(r, w)
+		userController.Login(eContext)
+		assert.Equal(t, 406, w.Result().StatusCode)
+	})
 }
 
 func TestCreateResetPassword(t *testing.T) {
-	service.On("CreateResetPassword", mock.Anything).Return(nil).Once()
-	service.On("CreateResetPassword", mock.Anything).Return(errors.New("error")).Once()
+	userService.On("CreateResetPassword", mock.Anything).Return(nil).Once()
+	userService.On("CreateResetPassword", mock.Anything).Return(errors.New("error")).Once()
 	userController := UserController{
-		services: &service,
+		services: &userService,
 	}
 	postBody := map[string]interface{}{
 		"email": "test@gmail.com",
@@ -213,10 +225,10 @@ func TestCreateResetPassword(t *testing.T) {
 }
 
 func TestUpdatePassword(t *testing.T) {
-	service.On("UpdatePassword", mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
-	service.On("UpdatePassword", mock.Anything, mock.Anything, mock.Anything).Return(errors.New("error")).Once()
+	userService.On("UpdatePassword", mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
+	userService.On("UpdatePassword", mock.Anything, mock.Anything, mock.Anything).Return(errors.New("error")).Once()
 	userController := UserController{
-		services: &service,
+		services: &userService,
 	}
 	postBody := map[string]interface{}{
 		"email":    "test@gmail.com",
@@ -252,10 +264,10 @@ func TestUpdatePassword(t *testing.T) {
 }
 
 func TestUpdateUserData(t *testing.T) {
-	service.On("UpdateUserData", mock.Anything, mock.Anything).Return(nil).Once()
-	service.On("UpdateUserData", mock.Anything, mock.Anything).Return(errors.New("error")).Once()
+	userService.On("UpdateUserData", mock.Anything, mock.Anything).Return(nil).Once()
+	userService.On("UpdateUserData", mock.Anything, mock.Anything).Return(errors.New("error")).Once()
 	userController := UserController{
-		services: &service,
+		services: &userService,
 	}
 	user := models.User{
 		ID:           uint(1),

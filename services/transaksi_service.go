@@ -4,7 +4,6 @@ import (
 	"WallE/domains"
 	"WallE/helper"
 	"WallE/models"
-	"fmt"
 	"strconv"
 
 	"github.com/midtrans/midtrans-go"
@@ -58,10 +57,9 @@ func (s *serviceTransaksi) NewTransactionBank(transaksi models.Transaksi) (error
 	transaksi.WaktuTransaksi = Response.TransactionTime
 	transaksi.TransaksiID = Response.TransactionID
 	transaksi.Status = Response.TransactionStatus
-	errDB := s.repo.TransaksiBaru(transaksi)
-
-	Result := helper.FromMidBank(*Response, produk.Nama, transaksi.NomorHP, transaksi.Bank, int64(produk.Nominal), int64(produk.Harga))
-	if err != nil {
+	data, errDB := s.repo.TransaksiBaru(transaksi)
+	Result := helper.FromMidBank(*Response, data.ID, produk.Nama, transaksi.NomorHP, transaksi.Bank, int64(produk.Nominal), int64(produk.Harga))
+	if errDB != nil {
 		return errDB, ""
 	}
 	return nil, Result
@@ -107,8 +105,8 @@ func (s *serviceTransaksi) NewTransactionEWallet(transaksi models.Transaksi) (er
 	transaksi.WaktuTransaksi = Response.TransactionTime
 	transaksi.TransaksiID = Response.TransactionID
 	transaksi.Status = Response.TransactionStatus
-	errDB := s.repo.TransaksiBaru(transaksi)
-	res := helper.FromMidEWallet(*Response, produk.Nama, transaksi.NomorHP, int64(produk.Nominal), int64(produk.Harga))
+	data, errDB := s.repo.TransaksiBaru(transaksi)
+	res := helper.FromMidEWallet(*Response, data.ID, produk.Nama, transaksi.NomorHP, int64(produk.Nominal), int64(produk.Harga))
 	if err != nil {
 		return errDB, ""
 	}
@@ -119,15 +117,14 @@ func (s *serviceTransaksi) NewTransactionEWallet(transaksi models.Transaksi) (er
 	return nil, res
 }
 
-func (s *serviceTransaksi) UpdateTransaksi(orderid string, transkasi models.Transaksi) error {
-	err := s.repo.UpdateTransaksi(orderid, transkasi)
-	fmt.Println(transkasi)
+func (s *serviceTransaksi) UpdateTransaksi(orderid string, transaksi models.Transaksi) error {
+	err := s.repo.UpdateTransaksi(orderid, transaksi)
 	if err != nil {
 		return err
 	}
-	if transkasi.Status == "expire" || transkasi.Status == "cancel" {
-		transkasi = s.repo.GetTransactionByOrderId(transkasi.OrderID)
-		err = s.repo.RefundBalance(transkasi.Produk.KategoriID, transkasi.Produk.Nominal)
+	if transaksi.Status == "expire" || transaksi.Status == "cancel" {
+		transaksi = s.repo.GetTransactionByOrderId(transaksi.OrderID)
+		err = s.repo.RefundBalance(transaksi.Produk.KategoriID, transaksi.Produk.Nominal)
 		if err != nil {
 			return err
 		}
@@ -141,8 +138,7 @@ func (s *serviceTransaksi) GetUserTransactions(id uint, filter string) []models.
 }
 
 func (s *serviceTransaksi) GetListTransactionByUserId(userid uint) []models.Transaksi {
-	transaksi := []models.Transaksi{}
-	return transaksi
+	return s.repo.GetListTransactionByUserId(userid)
 }
 
 func (s *serviceTransaksi) GetAllTransaction(filter string) []models.Transaksi {

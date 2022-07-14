@@ -19,10 +19,7 @@ type serviceUser struct {
 }
 
 func (s *serviceUser) Register(user models.User) error {
-	fmt.Println(user)
 	userExist, check := s.repo.GetByEmail(user.Email)
-	fmt.Println("===")
-	fmt.Println(userExist)
 	user.DiBuatPada = time.Now()
 	user.DiUpdatePada = time.Now()
 	user.Kode = GenerateCode()
@@ -46,13 +43,10 @@ func (s *serviceUser) Register(user models.User) error {
 }
 
 func (s *serviceUser) VerifikasiRegister(email, kode string) (string, error) {
-	fmt.Println(email)
 	user, err := s.repo.GetByEmail(email)
 	if err != nil {
 		return "", err
 	}
-	// fmt.Println(user)
-	// fmt.Println(kode)
 	if kode != user.Kode {
 		return "", errors.New("Kode Salah")
 	}
@@ -113,9 +107,7 @@ func (s *serviceUser) CreateResetPassword(email string) error {
 }
 
 func (s *serviceUser) UpdatePassword(email, password, code string) error {
-	// fmt.Println(email, password, code)
 	user, err := s.repo.GetResetPassword(email)
-	// fmt.Println(user)
 	if err != nil {
 		return err
 	}
@@ -134,7 +126,6 @@ func (s *serviceUser) UpdatePassword(email, password, code string) error {
 }
 
 func (s *serviceUser) UpdateUserData(id uint, user models.User) error {
-	fmt.Println(id, user)
 	return s.repo.UpdateUserData(id, user)
 }
 
