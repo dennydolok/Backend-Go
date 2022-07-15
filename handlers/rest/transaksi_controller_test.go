@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http/httptest"
 	"net/url"
 	"strings"
@@ -113,7 +112,6 @@ func TestTransaksiBank(t *testing.T) {
 		w := httptest.NewRecorder()
 		eContext := e.NewContext(r, w)
 		controllerTransaksi.NewTransactionBank(eContext)
-		fmt.Println(w.Body.String())
 		assert.Equal(t, 200, w.Result().StatusCode)
 	})
 	t.Run("transaksi bank error admin", func(t *testing.T) {
@@ -132,7 +130,6 @@ func TestTransaksiBank(t *testing.T) {
 		w := httptest.NewRecorder()
 		eContext := e.NewContext(r, w)
 		controllerTransaksi.NewTransactionBank(eContext)
-		fmt.Println(w.Body.String())
 		assert.Equal(t, 401, w.Result().StatusCode)
 	})
 	t.Run("transaksi bank error service", func(t *testing.T) {
@@ -151,7 +148,6 @@ func TestTransaksiBank(t *testing.T) {
 		w := httptest.NewRecorder()
 		eContext := e.NewContext(r, w)
 		controllerTransaksi.NewTransactionBank(eContext)
-		fmt.Println(w.Body.String())
 		assert.Equal(t, 500, w.Result().StatusCode)
 	})
 }
@@ -179,7 +175,6 @@ func TestTransaksiEWallet(t *testing.T) {
 		w := httptest.NewRecorder()
 		eContext := e.NewContext(r, w)
 		controllerTransaksi.NewTransaksiWallet(eContext)
-		fmt.Println(w.Body.String())
 		assert.Equal(t, 200, w.Result().StatusCode)
 	})
 	t.Run("transaksi bank error admin", func(t *testing.T) {
@@ -197,7 +192,6 @@ func TestTransaksiEWallet(t *testing.T) {
 		w := httptest.NewRecorder()
 		eContext := e.NewContext(r, w)
 		controllerTransaksi.NewTransaksiWallet(eContext)
-		fmt.Println(w.Body.String())
 		assert.Equal(t, 401, w.Result().StatusCode)
 	})
 	t.Run("transaksi bank error service", func(t *testing.T) {
@@ -215,7 +209,6 @@ func TestTransaksiEWallet(t *testing.T) {
 		w := httptest.NewRecorder()
 		eContext := e.NewContext(r, w)
 		controllerTransaksi.NewTransaksiWallet(eContext)
-		fmt.Println(w.Body.String())
 		assert.Equal(t, 500, w.Result().StatusCode)
 	})
 }
@@ -337,7 +330,7 @@ func TestGetTransactionById(t *testing.T) {
 	})
 }
 
-func TestGetTotalIncome(t *testing.T){
+func TestGetTotalIncome(t *testing.T) {
 	transaksiService.On("GetTotalIncome").Return(10000).Once()
 	controllerTransaksi := transaksiController{
 		services: &transaksiService,

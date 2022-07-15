@@ -7,7 +7,6 @@ import (
 	"WallE/models"
 	"encoding/base64"
 	"errors"
-	"fmt"
 	"math/rand"
 	"net/http"
 	"time"
@@ -36,7 +35,6 @@ func (s *serviceUser) Register(user models.User) error {
 	}
 	err := helper.SendMail(user.Kode, user.Email, user.Nama, "Registrasi")
 	if err != nil {
-		fmt.Println(err)
 		return errors.New("Gagal kirim email verifikasi")
 	}
 	return s.repo.Register(user)
@@ -92,15 +90,12 @@ func (s *serviceUser) CreateResetPassword(email string) error {
 	reset.Kode = GenerateCode()
 	reset.DiBuatPada = time.Now()
 	reset.DiUpdatePada = time.Now()
-	fmt.Println(reset)
 	err = s.repo.CreateResetPassword(reset)
 	if err != nil {
-		fmt.Println(err)
 		return errors.New("Kesalahan database")
 	}
 	err = helper.SendMail(reset.Kode, email, user.Nama, "Hilang Password")
 	if err != nil {
-		fmt.Println(err)
 		return errors.New("Gagal")
 	}
 	return nil

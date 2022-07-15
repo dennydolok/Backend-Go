@@ -4,7 +4,6 @@ import (
 	"WallE/domains"
 	"WallE/models"
 	"errors"
-	"fmt"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -24,7 +23,6 @@ func (r *repositoriProduk) AddSaldo(saldobaru int, kategoriid uint) error {
 	saldo := models.Saldo{}
 	r.DB.Where("kategori_id = ?", kategoriid).Find(&saldo)
 	saldobaru += saldo.Saldo
-	fmt.Println(saldobaru)
 	err := r.DB.Model(&saldo).Where("kategori_id = ?", kategoriid).Update("saldo", saldobaru).Error
 	if err != nil {
 		return errors.New("database error")
