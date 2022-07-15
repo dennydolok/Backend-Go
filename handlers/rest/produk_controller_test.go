@@ -18,10 +18,8 @@ import (
 )
 
 var kategori = models.Kategori{
-	ID:           1,
-	Nama:         "Pulsa",
-	DibuatPada:   time.Now(),
-	DiupdatePada: time.Now(),
+	ID:   1,
+	Nama: "Pulsa",
 }
 
 var produk = models.Produk{

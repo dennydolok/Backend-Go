@@ -26,10 +26,8 @@ var produk = models.Produk{
 }
 
 var kategori = models.Kategori{
-	ID:           1,
-	Nama:         "Pulsa",
-	DibuatPada:   time.Now(),
-	DiupdatePada: time.Now(),
+	ID:   1,
+	Nama: "Pulsa",
 }
 
 var saldo = models.Saldo{
@@ -189,7 +187,7 @@ func TestGetPurchaseableProduct(t *testing.T) {
 	})
 }
 
-func TestUpdateProductById(t *testing.T){
+func TestUpdateProductById(t *testing.T) {
 	produkService := serviceProduk{
 		repo: &produkRepository,
 	}
@@ -200,7 +198,7 @@ func TestUpdateProductById(t *testing.T){
 	})
 }
 
-func TestDeleteProduct(t *testing.T){
+func TestDeleteProduct(t *testing.T) {
 	produkService := serviceProduk{
 		repo: &produkRepository,
 	}
@@ -211,7 +209,7 @@ func TestDeleteProduct(t *testing.T){
 	})
 }
 
-func TestNewProdukServi(t *testing.T){
+func TestNewProdukServi(t *testing.T) {
 	result := NewProdukService(&produkRepository)
 	assert.NotEmpty(t, result)
 }

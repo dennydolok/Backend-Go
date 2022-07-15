@@ -49,7 +49,7 @@ func (s *serviceTransaksi) NewTransactionBank(transaksi models.Transaksi) (error
 	}
 	Response, err := coreapi.ChargeTransaction(chargeReq)
 	if err != nil {
-		return err, ""
+		return err, "error midtrans"
 	}
 	transaksi.TipePembayaran = Response.PaymentType
 	transaksi.OrderID = Response.OrderID
@@ -60,7 +60,11 @@ func (s *serviceTransaksi) NewTransactionBank(transaksi models.Transaksi) (error
 	data, errDB := s.repo.TransaksiBaru(transaksi)
 	Result := helper.FromMidBank(*Response, data.ID, produk.Nama, transaksi.NomorHP, transaksi.Bank, int64(produk.Nominal), int64(produk.Harga))
 	if errDB != nil {
-		return errDB, ""
+		return errDB, "error database"
+	}
+	errorBalance := s.repo.ReduceBalance(produk.KategoriID, produk.Nominal)
+	if errorBalance != nil {
+		return errorBalance, ""
 	}
 	return nil, Result
 }
@@ -97,7 +101,7 @@ func (s *serviceTransaksi) NewTransactionEWallet(transaksi models.Transaksi) (er
 	}
 	Response, err := coreapi.ChargeTransaction(chargeReq)
 	if err != nil {
-		return err, ""
+		return err, "error midtrans"
 	}
 	transaksi.TipePembayaran = Response.PaymentType
 	transaksi.OrderID = Response.OrderID
@@ -108,7 +112,7 @@ func (s *serviceTransaksi) NewTransactionEWallet(transaksi models.Transaksi) (er
 	data, errDB := s.repo.TransaksiBaru(transaksi)
 	res := helper.FromMidEWallet(*Response, data.ID, produk.Nama, transaksi.NomorHP, int64(produk.Nominal), int64(produk.Harga))
 	if err != nil {
-		return errDB, ""
+		return errDB, "error database"
 	}
 	errorBalance := s.repo.ReduceBalance(produk.KategoriID, produk.Nominal)
 	if errorBalance != nil {

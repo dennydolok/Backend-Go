@@ -75,8 +75,6 @@ type RespBody struct {
 func FromMidBank(res coreapi.ChargeResponse, id uint, produk, NoHp, bank string, nominal, harga int64) RespBank {
 	WaktuTanggal := strings.Split(res.TransactionTime, " ")
 	var vanumber string
-
-	fmt.Println(res)
 	if bank == "permata" {
 		vanumber = res.PermataVaNumber
 	} else {
