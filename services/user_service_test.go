@@ -156,6 +156,19 @@ func TestUpdatePassword(t *testing.T) {
 		repo:   &userRepository,
 		config: config.Config{},
 	}
+	t.Run("failed update password", func(t *testing.T) {
+		userRepository.On("GetResetPassword", userReset.Email).Return(userReset, nil).Once()
+		userRepository.On("UpdatePassword", mock.Anything, "MzIx").Return(errors.New("error update")).Once()
+		err := userService.UpdatePassword(userReset.Email, "321", code)
+		assert.Error(t, err)
+	})
+	t.Run("failed update reset table", func(t *testing.T) {
+		userRepository.On("GetResetPassword", mock.Anything).Return(userReset, nil).Once()
+		userRepository.On("UpdatePassword", mock.Anything, mock.Anything).Return(nil).Once()
+		userRepository.On("UpdateResetTable", mock.Anything).Return(errors.New("error table")).Once()
+		err := userService.UpdatePassword(userReset.Email, "123", code)
+		assert.Error(t, err)
+	})
 	t.Run("success update", func(t *testing.T) {
 		userRepository.On("GetResetPassword", mock.Anything).Return(userReset, nil).Once()
 		userRepository.On("UpdatePassword", mock.Anything, mock.Anything).Return(nil).Once()
@@ -177,14 +190,6 @@ func TestUpdatePassword(t *testing.T) {
 		err := userService.UpdatePassword(userReset.Email, "123", falseCode)
 		assert.Error(t, err)
 	})
-	// t.Run("failed update password", func(t *testing.T) {
-	// 	userRepository.On("GetResetPassword", userReset.Email).Return(userReset, nil).Once()
-	// 	userRepository.On("UpdatePassword", mock.Anything, mock.Anything).Return(errors.New("error update")).Once()
-	// 	userRepository.On("UpdateResetTable", mock.Anything).Return(nil).Once()
-	// 	err := userService.UpdatePassword(userReset.Email, "123", code)
-	// 	fmt.Println(err)
-	// 	assert.Error(t, err)
-	// })
 }
 
 func TestUpdateUser(t *testing.T) {
@@ -198,6 +203,25 @@ func TestUpdateUser(t *testing.T) {
 		assert.NoError(t, err)
 	})
 }
+
+func TestCreateResetPassword(t *testing.T){
+	userService := serviceUser{
+		repo:   &userRepository,
+		config: config.Config{},
+	}
+	t.Run("error get user", func(t *testing.T) {
+		userRepository.On("GetByEmail", mock.Anything).Return(user, errors.New("error get user")).Once()
+		err := userService.CreateResetPassword(user.Email)
+		assert.Error(t, err)
+	})
+	t.Run("error create reset", func(t *testing.T) {
+		userRepository.On("GetByEmail", mock.Anything).Return(user, errors.New("error get user")).Once()
+		userRepository.On("CreateResetPassword", userReset).Return(errors.New("error create reset")).Once()
+		err := userService.CreateResetPassword(user.Email)
+		assert.Error(t, err)
+	})
+}
+
 
 func TestNewUserService(t *testing.T) {
 	result := NewUserService(&userRepository, config.Config{})

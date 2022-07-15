@@ -4,7 +4,6 @@ import (
 	m "WallE/domains/mocks"
 	"WallE/models"
 	"errors"
-	"fmt"
 	"net/http/httptest"
 	"net/url"
 	"strings"
@@ -18,10 +17,8 @@ import (
 )
 
 var kategori = models.Kategori{
-	ID:           1,
-	Nama:         "Pulsa",
-	DibuatPada:   time.Now(),
-	DiupdatePada: time.Now(),
+	ID:   1,
+	Nama: "Pulsa",
 }
 
 var produk = models.Produk{
@@ -218,7 +215,6 @@ func TestAddProduct(t *testing.T) {
 		w := httptest.NewRecorder()
 		eContext := e.NewContext(r, w)
 		controllerProduct.AddProduct(eContext)
-		fmt.Println(w.Body.String())
 		assert.Equal(t, 200, w.Result().StatusCode)
 	})
 	t.Run("add product error nama", func(t *testing.T) {
@@ -233,7 +229,6 @@ func TestAddProduct(t *testing.T) {
 		w := httptest.NewRecorder()
 		eContext := e.NewContext(r, w)
 		controllerProduct.AddProduct(eContext)
-		fmt.Println(w.Body.String())
 		assert.Equal(t, 500, w.Result().StatusCode)
 	})
 	t.Run("add product error insert", func(t *testing.T) {
@@ -248,7 +243,6 @@ func TestAddProduct(t *testing.T) {
 		w := httptest.NewRecorder()
 		eContext := e.NewContext(r, w)
 		controllerProduct.AddProduct(eContext)
-		fmt.Println(w.Body.String())
 		assert.Equal(t, 500, w.Result().StatusCode)
 	})
 	t.Run("add product not an admin", func(t *testing.T) {
@@ -263,7 +257,6 @@ func TestAddProduct(t *testing.T) {
 		w := httptest.NewRecorder()
 		eContext := e.NewContext(r, w)
 		controllerProduct.AddProduct(eContext)
-		fmt.Println(w.Body.String())
 		assert.Equal(t, 401, w.Result().StatusCode)
 	})
 }

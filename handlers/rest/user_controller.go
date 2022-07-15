@@ -4,7 +4,6 @@ import (
 	"WallE/domains"
 	"WallE/helper"
 	"WallE/models"
-	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -58,7 +57,6 @@ func (s *UserController) Verification(c echo.Context) error {
 	}
 	var repBody body
 	c.Bind(&repBody)
-	fmt.Println(c.FormValue("code"))
 	token, err := s.services.VerifikasiRegister(repBody.Email, repBody.Code)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
