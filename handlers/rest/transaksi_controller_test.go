@@ -346,4 +346,14 @@ func TestGetTotalIncome(t *testing.T) {
 		controllerTransaksi.GetTotalIncome(eContext)
 		assert.Equal(t, 200, w.Result().StatusCode)
 	})
+	t.Run("error total income not admin", func(t *testing.T) {
+		bearer := "Bearer " + tokenCustomer
+		r := httptest.NewRequest("GET", "/", bytes.NewBuffer(nil))
+		r.Header.Set("Authorization", bearer)
+		r.Header.Add("Accept", "application/json")
+		w := httptest.NewRecorder()
+		eContext := e.NewContext(r, w)
+		controllerTransaksi.GetTotalIncome(eContext)
+		assert.Equal(t, 401, w.Result().StatusCode)
+	})
 }

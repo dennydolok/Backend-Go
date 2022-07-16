@@ -123,6 +123,14 @@ func (cont *transaksiController) GetTransactionById(c echo.Context) error {
 }
 
 func (cont *transaksiController) GetTotalIncome(c echo.Context) error {
+	role := helper.GetClaim(c.Request().Header.Get("Authorization"))
+	checkAdmin := helper.CheckAdmin(role)
+	if checkAdmin != nil {
+		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+			"kode":  http.StatusUnauthorized,
+			"pesan": checkAdmin.Error(),
+		})
+	}
 	income := cont.services.GetTotalIncome()
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"kode":      http.StatusOK,
