@@ -4,8 +4,11 @@ import (
 	m "WallE/domains/mocks"
 	"WallE/models"
 	"errors"
+	"fmt"
 	"testing"
 
+	"github.com/midtrans/midtrans-go"
+	"github.com/midtrans/midtrans-go/coreapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -20,6 +23,337 @@ var transaksi = models.Transaksi{
 	Bank:       "bca",
 	UserID:     1,
 	ProdukID:   1,
+}
+
+var TransaksiWallet = models.Transaksi{
+	ID:             1,
+	Status:         "pending",
+	TotalHarga:     "12000",
+	OrderID:        "INV/14072022/PLS/160",
+	TipePembayaran: "gopay",
+	UserID:         1,
+	ProdukID:       1,
+}
+
+func TestTransaksiBank(t *testing.T) {
+	transaksiService := serviceTransaksi{
+		repo: &transaksiRepositori,
+	}
+	t.Run("success transaction", func(t *testing.T) {
+		defer func() { ChargeTransaction = oldChargeTransaction }()
+		ChargeTransaction = func(req *coreapi.ChargeReq) (*coreapi.ChargeResponse, *midtrans.Error) {
+			return &coreapi.ChargeResponse{
+				TransactionID:     "1661865e-7ce8-4e23-898b-9174b01c89f2",
+				PaymentType:       "bank_transfer",
+				OrderID:           "INV/02072022/VCG/2",
+				GrossAmount:       "12000",
+				TransactionTime:   "2022-07-02 19:19:57",
+				TransactionStatus: "pending",
+				VaNumbers: []coreapi.VANumber{
+					{
+						Bank:     "bca",
+						VANumber: "12313213123",
+					},
+				},
+			}, nil
+		}
+		transaksiRepositori.On("GetProdukById", mock.AnythingOfType("uint")).Return(produk).Once()
+		transaksiRepositori.On("GetUserById", mock.AnythingOfType("uint")).Return(user).Once()
+		transaksiRepositori.On("GetLastId").Return(uint(16)).Once()
+		transaksiRepositori.On("TransaksiBaru", mock.Anything).Return(transaksi, nil).Once()
+		transaksiRepositori.On("ReduceBalance", mock.AnythingOfType("uint"), mock.Anything).Return(nil).Once()
+		err, _ := transaksiService.NewTransactionBank(transaksi)
+		assert.NoError(t, err)
+	})
+	t.Run("error no product", func(t *testing.T) {
+		emptyProduk := models.Produk{
+			ID: 0,
+		}
+		transaksiRepositori.On("GetProdukById", mock.AnythingOfType("uint")).Return(emptyProduk).Once()
+		err, _ := transaksiService.NewTransactionBank(transaksi)
+		assert.Error(t, err)
+	})
+	t.Run("error no user", func(t *testing.T) {
+		emptyUser := models.User{
+			ID: 0,
+		}
+		transaksiRepositori.On("GetProdukById", mock.AnythingOfType("uint")).Return(produk).Once()
+		transaksiRepositori.On("GetUserById", mock.AnythingOfType("uint")).Return(emptyUser).Once()
+		err, _ := transaksiService.NewTransactionBank(transaksi)
+		assert.Error(t, err)
+	})
+	t.Run("error midtrans", func(t *testing.T) {
+		defer func() { ChargeTransaction = oldChargeTransaction }()
+		ChargeTransaction = func(req *coreapi.ChargeReq) (*coreapi.ChargeResponse, *midtrans.Error) {
+			return &coreapi.ChargeResponse{
+					TransactionID:     "1661865e-7ce8-4e23-898b-9174b01c89f2",
+					PaymentType:       "bank_transfer",
+					OrderID:           "INV/02072022/VCG/2",
+					GrossAmount:       "12000",
+					TransactionTime:   "2022-07-02 19:19:57",
+					TransactionStatus: "pending",
+					VaNumbers: []coreapi.VANumber{
+						{
+							Bank:     "bca",
+							VANumber: "12313213123",
+						},
+					},
+				}, &midtrans.Error{
+					Message:    "error",
+					StatusCode: 500,
+					RawError:   errors.New("error midtrans"),
+				}
+		}
+		transaksiRepositori.On("GetProdukById", mock.AnythingOfType("uint")).Return(produk).Once()
+		transaksiRepositori.On("GetUserById", mock.AnythingOfType("uint")).Return(user).Once()
+		transaksiRepositori.On("GetLastId").Return(uint(16)).Once()
+		err, _ := transaksiService.NewTransactionBank(transaksi)
+		assert.Error(t, err)
+	})
+	t.Run("error transaction database", func(t *testing.T) {
+		defer func() { ChargeTransaction = oldChargeTransaction }()
+		ChargeTransaction = func(req *coreapi.ChargeReq) (*coreapi.ChargeResponse, *midtrans.Error) {
+			return &coreapi.ChargeResponse{
+				TransactionID:     "1661865e-7ce8-4e23-898b-9174b01c89f2",
+				PaymentType:       "bank_transfer",
+				OrderID:           "INV/02072022/VCG/2",
+				GrossAmount:       "12000",
+				TransactionTime:   "2022-07-02 19:19:57",
+				TransactionStatus: "pending",
+				VaNumbers: []coreapi.VANumber{
+					{
+						Bank:     "bca",
+						VANumber: "12313213123",
+					},
+				},
+			}, nil
+		}
+		transaksiRepositori.On("GetProdukById", mock.AnythingOfType("uint")).Return(produk).Once()
+		transaksiRepositori.On("GetUserById", mock.AnythingOfType("uint")).Return(user).Once()
+		transaksiRepositori.On("GetLastId").Return(uint(16)).Once()
+		transaksiRepositori.On("TransaksiBaru", mock.Anything).Return(transaksi, errors.New("error database")).Once()
+		err, _ := transaksiService.NewTransactionBank(transaksi)
+		assert.Error(t, err)
+	})
+	t.Run("error reduce balance", func(t *testing.T) {
+		defer func() { ChargeTransaction = oldChargeTransaction }()
+		ChargeTransaction = func(req *coreapi.ChargeReq) (*coreapi.ChargeResponse, *midtrans.Error) {
+			return &coreapi.ChargeResponse{
+				TransactionID:     "1661865e-7ce8-4e23-898b-9174b01c89f2",
+				PaymentType:       "bank_transfer",
+				OrderID:           "INV/02072022/VCG/2",
+				GrossAmount:       "12000",
+				TransactionTime:   "2022-07-02 19:19:57",
+				TransactionStatus: "pending",
+				VaNumbers: []coreapi.VANumber{
+					{
+						Bank:     "bca",
+						VANumber: "12313213123",
+					},
+				},
+			}, nil
+		}
+		transaksiRepositori.On("GetProdukById", mock.AnythingOfType("uint")).Return(produk).Once()
+		transaksiRepositori.On("GetUserById", mock.AnythingOfType("uint")).Return(user).Once()
+		transaksiRepositori.On("GetLastId").Return(uint(16)).Once()
+		transaksiRepositori.On("TransaksiBaru", mock.Anything).Return(transaksi, nil).Once()
+		transaksiRepositori.On("ReduceBalance", mock.AnythingOfType("uint"), mock.Anything).Return(errors.New("error database")).Once()
+		err, _ := transaksiService.NewTransactionBank(transaksi)
+		assert.Error(t, err)
+	})
+}
+
+func TestTransaksiEWallet(t *testing.T) {
+	transaksiService := serviceTransaksi{
+		repo: &transaksiRepositori,
+	}
+	t.Run("success transaction", func(t *testing.T) {
+		defer func() { ChargeTransaction = oldChargeTransaction }()
+		ChargeTransaction = func(req *coreapi.ChargeReq) (*coreapi.ChargeResponse, *midtrans.Error) {
+			return &coreapi.ChargeResponse{
+				TransactionID:     "1661865e-7ce8-4e23-898b-9174b01c89f2",
+				PaymentType:       "gopay",
+				OrderID:           "INV/02072022/VCG/2",
+				GrossAmount:       "12000",
+				TransactionTime:   "2022-07-02 19:19:57",
+				TransactionStatus: "pending",
+				Actions: []coreapi.Action{
+					{
+						Name:   "generate-qr-code",
+						Method: "GET",
+						URL:    "https://api.sandbox.veritrans.co.id/v2/gopay/231c79c5-e39e-4993-86da-cadcaee56c1d/qr-code",
+					},
+					{
+						Name:   "deeplink-redirect",
+						Method: "GET",
+						URL:    "https://api.sandbox.veritrans.co.id/v2/gopay/231c79c5-e39e-4993-86da-cadcaee56c1d/qr-code",
+					},
+					{
+						Name:   "get-status",
+						Method: "GET",
+						URL:    "https://api.sandbox.veritrans.co.id/v2/gopay/231c79c5-e39e-4993-86da-cadcaee56c1d/qr-code",
+					},
+					{
+						Name:   "cancel",
+						Method: "POST",
+						URL:    "https://api.sandbox.veritrans.co.id/v2/231c79c5-e39e-4993-86da-cadcaee56c1d/cancel",
+					},
+				},
+			}, nil
+		}
+		transaksiRepositori.On("GetProdukById", mock.AnythingOfType("uint")).Return(produk).Once()
+		transaksiRepositori.On("GetUserById", mock.AnythingOfType("uint")).Return(user).Once()
+		transaksiRepositori.On("GetLastId").Return(uint(16)).Once()
+		transaksiRepositori.On("TransaksiBaru", mock.Anything).Return(TransaksiWallet, nil).Once()
+		transaksiRepositori.On("ReduceBalance", mock.AnythingOfType("uint"), mock.Anything).Return(nil).Once()
+		err, _ := transaksiService.NewTransactionEWallet(TransaksiWallet)
+		assert.NoError(t, err)
+	})
+	t.Run("error no product", func(t *testing.T) {
+		emptyProduk := models.Produk{
+			ID: 0,
+		}
+		transaksiRepositori.On("GetProdukById", mock.AnythingOfType("uint")).Return(emptyProduk).Once()
+		err, _ := transaksiService.NewTransactionEWallet(TransaksiWallet)
+		assert.Error(t, err)
+	})
+	t.Run("error no user", func(t *testing.T) {
+		emptyUser := models.User{
+			ID: 0,
+		}
+		transaksiRepositori.On("GetProdukById", mock.AnythingOfType("uint")).Return(produk).Once()
+		transaksiRepositori.On("GetUserById", mock.AnythingOfType("uint")).Return(emptyUser).Once()
+		err, _ := transaksiService.NewTransactionEWallet(transaksi)
+		assert.Error(t, err)
+	})
+	t.Run("error midtrans", func(t *testing.T) {
+		defer func() { ChargeTransaction = oldChargeTransaction }()
+		ChargeTransaction = func(req *coreapi.ChargeReq) (*coreapi.ChargeResponse, *midtrans.Error) {
+			return &coreapi.ChargeResponse{
+					TransactionID:     "1661865e-7ce8-4e23-898b-9174b01c89f2",
+					PaymentType:       "gopay",
+					OrderID:           "INV/02072022/VCG/2",
+					GrossAmount:       "12000",
+					TransactionTime:   "2022-07-02 19:19:57",
+					TransactionStatus: "pending",
+					Actions: []coreapi.Action{
+						{
+							Name:   "generate-qr-code",
+							Method: "GET",
+							URL:    "https://api.sandbox.veritrans.co.id/v2/gopay/231c79c5-e39e-4993-86da-cadcaee56c1d/qr-code",
+						},
+						{
+							Name:   "deeplink-redirect",
+							Method: "GET",
+							URL:    "https://api.sandbox.veritrans.co.id/v2/gopay/231c79c5-e39e-4993-86da-cadcaee56c1d/qr-code",
+						},
+						{
+							Name:   "get-status",
+							Method: "GET",
+							URL:    "https://api.sandbox.veritrans.co.id/v2/gopay/231c79c5-e39e-4993-86da-cadcaee56c1d/qr-code",
+						},
+						{
+							Name:   "cancel",
+							Method: "POST",
+							URL:    "https://api.sandbox.veritrans.co.id/v2/231c79c5-e39e-4993-86da-cadcaee56c1d/cancel",
+						},
+					},
+				}, &midtrans.Error{
+					Message:    "error",
+					StatusCode: 500,
+					RawError:   errors.New("error midtrans"),
+				}
+		}
+		transaksiRepositori.On("GetProdukById", mock.AnythingOfType("uint")).Return(produk).Once()
+		transaksiRepositori.On("GetUserById", mock.AnythingOfType("uint")).Return(user).Once()
+		transaksiRepositori.On("GetLastId").Return(uint(16)).Once()
+		err, _ := transaksiService.NewTransactionEWallet(TransaksiWallet)
+		assert.Error(t, err)
+	})
+	t.Run("error reduce balance", func(t *testing.T) {
+		defer func() { ChargeTransaction = oldChargeTransaction }()
+		ChargeTransaction = func(req *coreapi.ChargeReq) (*coreapi.ChargeResponse, *midtrans.Error) {
+			return &coreapi.ChargeResponse{
+				TransactionID:     "1661865e-7ce8-4e23-898b-9174b01c89f2",
+				PaymentType:       "gopay",
+				OrderID:           "INV/02072022/VCG/2",
+				GrossAmount:       "12000",
+				TransactionTime:   "2022-07-02 19:19:57",
+				TransactionStatus: "pending",
+				Actions: []coreapi.Action{
+					{
+						Name:   "generate-qr-code",
+						Method: "GET",
+						URL:    "https://api.sandbox.veritrans.co.id/v2/gopay/231c79c5-e39e-4993-86da-cadcaee56c1d/qr-code",
+					},
+					{
+						Name:   "deeplink-redirect",
+						Method: "GET",
+						URL:    "https://api.sandbox.veritrans.co.id/v2/gopay/231c79c5-e39e-4993-86da-cadcaee56c1d/qr-code",
+					},
+					{
+						Name:   "get-status",
+						Method: "GET",
+						URL:    "https://api.sandbox.veritrans.co.id/v2/gopay/231c79c5-e39e-4993-86da-cadcaee56c1d/qr-code",
+					},
+					{
+						Name:   "cancel",
+						Method: "POST",
+						URL:    "https://api.sandbox.veritrans.co.id/v2/231c79c5-e39e-4993-86da-cadcaee56c1d/cancel",
+					},
+				},
+			}, nil
+		}
+		transaksiRepositori.On("GetProdukById", mock.AnythingOfType("uint")).Return(produk).Once()
+		transaksiRepositori.On("GetUserById", mock.AnythingOfType("uint")).Return(user).Once()
+		transaksiRepositori.On("GetLastId").Return(uint(16)).Once()
+		transaksiRepositori.On("TransaksiBaru", mock.Anything).Return(TransaksiWallet, nil).Once()
+		transaksiRepositori.On("ReduceBalance", mock.AnythingOfType("uint"), mock.Anything).Return(errors.New("error database")).Once()
+		err, _ := transaksiService.NewTransactionEWallet(TransaksiWallet)
+		assert.Error(t, err)
+	})
+	t.Run("error transaction database", func(t *testing.T) {
+		defer func() { ChargeTransaction = oldChargeTransaction }()
+		ChargeTransaction = func(req *coreapi.ChargeReq) (*coreapi.ChargeResponse, *midtrans.Error) {
+			return &coreapi.ChargeResponse{
+				TransactionID:     "1661865e-7ce8-4e23-898b-9174b01c89f2",
+				PaymentType:       "gopay",
+				OrderID:           "INV/02072022/VCG/2",
+				GrossAmount:       "12000",
+				TransactionTime:   "2022-07-02 19:19:57",
+				TransactionStatus: "pending",
+				Actions: []coreapi.Action{
+					{
+						Name:   "generate-qr-code",
+						Method: "GET",
+						URL:    "https://api.sandbox.veritrans.co.id/v2/gopay/231c79c5-e39e-4993-86da-cadcaee56c1d/qr-code",
+					},
+					{
+						Name:   "deeplink-redirect",
+						Method: "GET",
+						URL:    "https://api.sandbox.veritrans.co.id/v2/gopay/231c79c5-e39e-4993-86da-cadcaee56c1d/qr-code",
+					},
+					{
+						Name:   "get-status",
+						Method: "GET",
+						URL:    "https://api.sandbox.veritrans.co.id/v2/gopay/231c79c5-e39e-4993-86da-cadcaee56c1d/qr-code",
+					},
+					{
+						Name:   "cancel",
+						Method: "POST",
+						URL:    "https://api.sandbox.veritrans.co.id/v2/231c79c5-e39e-4993-86da-cadcaee56c1d/cancel",
+					},
+				},
+			}, nil
+		}
+		transaksiRepositori.On("GetProdukById", mock.AnythingOfType("uint")).Return(produk).Once()
+		transaksiRepositori.On("GetUserById", mock.AnythingOfType("uint")).Return(user).Once()
+		transaksiRepositori.On("GetLastId").Return(uint(16)).Once()
+		transaksiRepositori.On("TransaksiBaru", mock.Anything).Return(TransaksiWallet, errors.New("error database")).Once()
+		err, _ := transaksiService.NewTransactionEWallet(TransaksiWallet)
+		fmt.Println(err)
+		assert.Error(t, err)
+	})
 }
 
 func TestUpdateTransaksi(t *testing.T) {

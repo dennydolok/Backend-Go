@@ -17,6 +17,9 @@ type serviceUser struct {
 	config config.Config
 }
 
+var SendMail = helper.SendMail
+var old = SendMail
+
 func (s *serviceUser) Register(user models.User) error {
 	userExist, check := s.repo.GetByEmail(user.Email)
 	user.DiBuatPada = time.Now()
@@ -25,7 +28,7 @@ func (s *serviceUser) Register(user models.User) error {
 	user.Password = base64.StdEncoding.EncodeToString([]byte(user.Password))
 	if check == nil {
 		if userExist.Verifikasi == false {
-			err := helper.SendMail(userExist.Kode, userExist.Email, userExist.Nama, "Registrasi")
+			err := SendMail(userExist.Kode, userExist.Email, userExist.Nama, "Registrasi")
 			if err != nil {
 				return errors.New("Sistem Error")
 			}
@@ -33,7 +36,7 @@ func (s *serviceUser) Register(user models.User) error {
 		}
 		return errors.New("Email sudah terdaftar")
 	}
-	err := helper.SendMail(user.Kode, user.Email, user.Nama, "Registrasi")
+	err := SendMail(user.Kode, user.Email, user.Nama, "Registrasi")
 	if err != nil {
 		return errors.New("Gagal kirim email verifikasi")
 	}
@@ -94,7 +97,7 @@ func (s *serviceUser) CreateResetPassword(email string) error {
 	if err != nil {
 		return errors.New("Kesalahan database")
 	}
-	err = helper.SendMail(reset.Kode, email, user.Nama, "Hilang Password")
+	err = SendMail(reset.Kode, email, user.Nama, "Hilang Password")
 	if err != nil {
 		return errors.New("Gagal")
 	}

@@ -125,6 +125,17 @@ func (cont *productController) GetSaldo(c echo.Context) error {
 		})
 	}
 	saldo := cont.services.GetSaldo()
+	count := c.QueryParam("hitung")
+	if count == "total" {
+		total := 0
+		for _, v := range saldo {
+			total += v.Saldo
+		}
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"kode":  http.StatusOK,
+			"saldo": total,
+		})
+	}
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"kode":  http.StatusOK,
 		"saldo": saldo,

@@ -4,6 +4,8 @@ import (
 	"WallE/domains"
 	"WallE/helper"
 	"WallE/models"
+	"errors"
+	"fmt"
 	"strconv"
 
 	"github.com/midtrans/midtrans-go"
@@ -14,11 +16,20 @@ type serviceTransaksi struct {
 	repo domains.TransaksiDomain
 }
 
+var ChargeTransaction = coreapi.ChargeTransaction
+var oldChargeTransaction = ChargeTransaction
+
 func (s *serviceTransaksi) NewTransactionBank(transaksi models.Transaksi) (error, interface{}) {
 	midtrans.ServerKey = "SB-Mid-server-EU1Q1faz7h8T1eL51zvGViIC"
 	midtrans.Environment = midtrans.Sandbox
 	produk := s.repo.GetProdukById(transaksi.ProdukID)
+	if produk.ID == 0 {
+		return errors.New("error produk not found"), "produk not found"
+	}
 	user := s.repo.GetUserById(transaksi.UserID)
+	if user.ID == 0 {
+		return errors.New("error user not found"), "error user not found"
+	}
 	if len(transaksi.NomorHP) == 0 {
 		transaksi.NomorHP = user.NomorHP
 	}
@@ -47,9 +58,10 @@ func (s *serviceTransaksi) NewTransactionBank(transaksi models.Transaksi) (error
 			Email: user.Email,
 		},
 	}
-	Response, err := coreapi.ChargeTransaction(chargeReq)
+	Response, err := ChargeTransaction(chargeReq)
 	if err != nil {
-		return err, "error midtrans"
+		fmt.Println(err)
+		return err.RawError, errors.New("error midtranss")
 	}
 	transaksi.TipePembayaran = Response.PaymentType
 	transaksi.OrderID = Response.OrderID
@@ -73,7 +85,13 @@ func (s *serviceTransaksi) NewTransactionEWallet(transaksi models.Transaksi) (er
 	midtrans.ServerKey = "SB-Mid-server-EU1Q1faz7h8T1eL51zvGViIC"
 	midtrans.Environment = midtrans.Sandbox
 	produk := s.repo.GetProdukById(transaksi.ProdukID)
+	if produk.ID == 0 {
+		return errors.New("error produk not found"), "produk not found"
+	}
 	user := s.repo.GetUserById(transaksi.UserID)
+	if user.ID == 0 {
+		return errors.New("error user not found"), "error user not found"
+	}
 	if len(transaksi.NomorHP) == 0 {
 		transaksi.NomorHP = user.NomorHP
 	}
@@ -99,7 +117,7 @@ func (s *serviceTransaksi) NewTransactionEWallet(transaksi models.Transaksi) (er
 			Email: user.Email,
 		},
 	}
-	Response, err := coreapi.ChargeTransaction(chargeReq)
+	Response, err := ChargeTransaction(chargeReq)
 	if err != nil {
 		return err, "error midtrans"
 	}
@@ -111,7 +129,7 @@ func (s *serviceTransaksi) NewTransactionEWallet(transaksi models.Transaksi) (er
 	transaksi.Status = Response.TransactionStatus
 	data, errDB := s.repo.TransaksiBaru(transaksi)
 	res := helper.FromMidEWallet(*Response, data.ID, produk.Nama, transaksi.NomorHP, int64(produk.Nominal), int64(produk.Harga))
-	if err != nil {
+	if errDB != nil {
 		return errDB, "error database"
 	}
 	errorBalance := s.repo.ReduceBalance(produk.KategoriID, produk.Nominal)

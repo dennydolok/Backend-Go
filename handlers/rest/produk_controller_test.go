@@ -262,7 +262,23 @@ func TestAddProduct(t *testing.T) {
 }
 
 func TestGetSaldo(t *testing.T) {
-	saldo := []models.Saldo{}
+	saldo := []models.Saldo{
+		{
+			ID:           1,
+			Saldo:        55000,
+			KategoriID:   1,
+			DibuatPada:   time.Time{},
+			DiupdatePada: time.Time{},
+		},
+		{
+			ID:           2,
+			Saldo:        50000,
+			KategoriID:   1,
+			DibuatPada:   time.Time{},
+			DiupdatePada: time.Time{},
+		},
+	}
+	produkService.On("GetSaldo").Return(saldo).Once()
 	produkService.On("GetSaldo").Return(saldo).Once()
 	produkService.On("GetSaldo").Return(errors.New("error")).Once()
 	controllerProduct := productController{
@@ -272,6 +288,20 @@ func TestGetSaldo(t *testing.T) {
 	t.Run("get saldo", func(t *testing.T) {
 		bearer := "Bearer " + token
 		r := httptest.NewRequest("GET", "/", nil)
+		r.Header.Set("Authorization", bearer)
+		r.Header.Add("Accept", "application/json")
+		r.Body.Close()
+		w := httptest.NewRecorder()
+		eContext := e.NewContext(r, w)
+		controllerProduct.GetSaldo(eContext)
+		assert.Equal(t, 200, w.Result().StatusCode)
+	})
+	t.Run("get saldo", func(t *testing.T) {
+		bearer := "Bearer " + token
+		r := httptest.NewRequest("GET", "/", nil)
+		query := r.URL.Query()
+		query.Add("hitung", "total")
+		r.URL.RawQuery = query.Encode()
 		r.Header.Set("Authorization", bearer)
 		r.Header.Add("Accept", "application/json")
 		r.Body.Close()
