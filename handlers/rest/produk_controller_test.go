@@ -36,8 +36,8 @@ var produk = models.Produk{
 
 var produkService m.ProductService
 
-var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NTgyOTU5ODEsImlkIjo0LCJyb2xlIjoxfQ.yxhWlBYvH5J_DJu5Yks1byOuCJUuVXsTvxYiyRBsplo"
-var tokenCustomer = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NTgyOTQ1MjksImlkIjo2LCJyb2xlIjoyfQ.eTBg5QPyxVC53Z9RhiPdr14bp7f-CZoo_12hEz2GY1c"
+var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NTg5MjM1NjAsImlkIjoxLCJyb2xlIjoxfQ.-CXHHGIvnlnTfVlV3qVzrLQHu6Kym0QiBMkKwhELPlo"
+var tokenCustomer = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NTg5MjM1MzIsImlkIjozLCJyb2xlIjoyfQ.O3fIjS46clcLplMLAcHe76UFG1dT1GjDapr9h8sUlAE"
 
 func TestGetKategori(t *testing.T) {
 	kategoris := []models.Kategori{}
@@ -262,7 +262,23 @@ func TestAddProduct(t *testing.T) {
 }
 
 func TestGetSaldo(t *testing.T) {
-	saldo := []models.Saldo{}
+	saldo := []models.Saldo{
+		{
+			ID:           1,
+			Saldo:        55000,
+			KategoriID:   1,
+			DibuatPada:   time.Time{},
+			DiupdatePada: time.Time{},
+		},
+		{
+			ID:           2,
+			Saldo:        50000,
+			KategoriID:   1,
+			DibuatPada:   time.Time{},
+			DiupdatePada: time.Time{},
+		},
+	}
+	produkService.On("GetSaldo").Return(saldo).Once()
 	produkService.On("GetSaldo").Return(saldo).Once()
 	produkService.On("GetSaldo").Return(errors.New("error")).Once()
 	controllerProduct := productController{
@@ -272,6 +288,20 @@ func TestGetSaldo(t *testing.T) {
 	t.Run("get saldo", func(t *testing.T) {
 		bearer := "Bearer " + token
 		r := httptest.NewRequest("GET", "/", nil)
+		r.Header.Set("Authorization", bearer)
+		r.Header.Add("Accept", "application/json")
+		r.Body.Close()
+		w := httptest.NewRecorder()
+		eContext := e.NewContext(r, w)
+		controllerProduct.GetSaldo(eContext)
+		assert.Equal(t, 200, w.Result().StatusCode)
+	})
+	t.Run("get saldo", func(t *testing.T) {
+		bearer := "Bearer " + token
+		r := httptest.NewRequest("GET", "/", nil)
+		query := r.URL.Query()
+		query.Add("hitung", "total")
+		r.URL.RawQuery = query.Encode()
 		r.Header.Set("Authorization", bearer)
 		r.Header.Add("Accept", "application/json")
 		r.Body.Close()

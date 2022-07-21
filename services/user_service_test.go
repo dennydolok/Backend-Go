@@ -51,24 +51,62 @@ var userReset = models.ResetPassword{
 	DiUpdatePada: time.Now(),
 }
 
-// func TestRegister(t *testing.T) {
-
-// 	// userRepository.On("Register", userVerfified).Return(errors.New("error alredy register")).Once()
-// 	userService := serviceUser{
-// 		repo:   &userRepository,
-// 		config: config.Config{},
-// 	}
-// 	t.Run("success register", func(t *testing.T) {
-// 		userRepository.On("GetByEmail", mock.Anything).Return(user, errors.New("error")).Once()
-// 		userRepository.On("Register", mock.Anything).Return(nil).Once()
-// 		err := userService.Register(user)
-// 		assert.NoError(t, err)
-// 	})
-// 	// t.Run("error register email", func(t *testing.T) {
-// 	// 	err := userService.Register(userVerfified)
-// 	// 	assert.Error(t, err)
-// 	// })
-// }
+func TestRegister(t *testing.T) {
+	userService := serviceUser{
+		repo:   &userRepository,
+		config: config.Config{},
+	}
+	t.Run("success register", func(t *testing.T) {
+		defer func() { SendMail = old }()
+		SendMail = func(code, email, name, context string) error {
+			return nil
+		}
+		userRepository.On("GetByEmail", mock.Anything).Return(user, errors.New("error")).Once()
+		userRepository.On("Register", mock.Anything).Return(nil).Once()
+		err := userService.Register(user)
+		assert.NoError(t, err)
+	})
+	t.Run("success register failed to send email", func(t *testing.T) {
+		defer func() { SendMail = old }()
+		SendMail = func(code, email, name, context string) error {
+			return errors.New("service error")
+		}
+		userRepository.On("GetByEmail", mock.Anything).Return(user, errors.New("error")).Once()
+		userRepository.On("Register", mock.Anything).Return(nil).Once()
+		err := userService.Register(user)
+		assert.Error(t, err)
+	})
+	t.Run("error register email already register and verified", func(t *testing.T) {
+		defer func() { SendMail = old }()
+		SendMail = func(code, email, name, context string) error {
+			return errors.New("error test")
+		}
+		userRepository.On("GetByEmail", mock.Anything).Return(userVerfified, nil).Once()
+		userRepository.On("Register", userVerfified).Return(errors.New("error alredy register")).Once()
+		err := userService.Register(userVerfified)
+		assert.Error(t, err)
+	})
+	t.Run("error register email already register but not verified", func(t *testing.T) {
+		defer func() { SendMail = old }()
+		SendMail = func(code, email, name, context string) error {
+			return nil
+		}
+		userRepository.On("GetByEmail", mock.Anything).Return(user, nil).Once()
+		userRepository.On("Register", user).Return(errors.New("error alredy register")).Once()
+		err := userService.Register(user)
+		assert.Error(t, err)
+	})
+	t.Run("error resend verification email", func(t *testing.T) {
+		defer func() { SendMail = old }()
+		SendMail = func(code, email, name, context string) error {
+			return errors.New("failed to resend")
+		}
+		userRepository.On("GetByEmail", mock.Anything).Return(user, nil).Once()
+		userRepository.On("Register", user).Return(errors.New("error alredy register")).Once()
+		err := userService.Register(user)
+		assert.Error(t, err)
+	})
+}
 
 func TestVerifikasi(t *testing.T) {
 	userService := serviceUser{
@@ -204,7 +242,7 @@ func TestUpdateUser(t *testing.T) {
 	})
 }
 
-func TestCreateResetPassword(t *testing.T){
+func TestCreateResetPassword(t *testing.T) {
 	userService := serviceUser{
 		repo:   &userRepository,
 		config: config.Config{},
@@ -215,13 +253,32 @@ func TestCreateResetPassword(t *testing.T){
 		assert.Error(t, err)
 	})
 	t.Run("error create reset", func(t *testing.T) {
-		userRepository.On("GetByEmail", mock.Anything).Return(user, errors.New("error get user")).Once()
-		userRepository.On("CreateResetPassword", userReset).Return(errors.New("error create reset")).Once()
+		userRepository.On("GetByEmail", mock.Anything).Return(user, nil).Once()
+		userRepository.On("CreateResetPassword", mock.Anything).Return(errors.New("error create reset")).Once()
 		err := userService.CreateResetPassword(user.Email)
 		assert.Error(t, err)
 	})
+	t.Run("error send email reset", func(t *testing.T) {
+		defer func() { SendMail = old }()
+		SendMail = func(code, email, name, context string) error {
+			return errors.New("service error")
+		}
+		userRepository.On("GetByEmail", mock.Anything).Return(user, nil).Once()
+		userRepository.On("CreateResetPassword", mock.Anything).Return(nil).Once()
+		err := userService.CreateResetPassword(user.Email)
+		assert.Error(t, err)
+	})
+	t.Run("success", func(t *testing.T) {
+		defer func() { SendMail = old }()
+		SendMail = func(code, email, name, context string) error {
+			return nil
+		}
+		userRepository.On("GetByEmail", mock.Anything).Return(user, nil).Once()
+		userRepository.On("CreateResetPassword", mock.Anything).Return(nil).Once()
+		err := userService.CreateResetPassword(user.Email)
+		assert.NoError(t, err)
+	})
 }
-
 
 func TestNewUserService(t *testing.T) {
 	result := NewUserService(&userRepository, config.Config{})
