@@ -5,7 +5,6 @@ import (
 	"WallE/helper"
 	"WallE/models"
 	"errors"
-	"fmt"
 	"strconv"
 
 	"github.com/midtrans/midtrans-go"
@@ -60,7 +59,6 @@ func (s *serviceTransaksi) NewTransactionBank(transaksi models.Transaksi) (error
 	}
 	Response, err := ChargeTransaction(chargeReq)
 	if err != nil {
-		fmt.Println(err)
 		return err.RawError, errors.New("error midtranss")
 	}
 	transaksi.TipePembayaran = Response.PaymentType

@@ -4,7 +4,6 @@ import (
 	m "WallE/domains/mocks"
 	"WallE/models"
 	"errors"
-	"fmt"
 	"testing"
 
 	"github.com/midtrans/midtrans-go"
@@ -351,7 +350,6 @@ func TestTransaksiEWallet(t *testing.T) {
 		transaksiRepositori.On("GetLastId").Return(uint(16)).Once()
 		transaksiRepositori.On("TransaksiBaru", mock.Anything).Return(TransaksiWallet, errors.New("error database")).Once()
 		err, _ := transaksiService.NewTransactionEWallet(TransaksiWallet)
-		fmt.Println(err)
 		assert.Error(t, err)
 	})
 }

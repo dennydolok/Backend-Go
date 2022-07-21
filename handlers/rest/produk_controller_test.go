@@ -36,8 +36,8 @@ var produk = models.Produk{
 
 var produkService m.ProductService
 
-var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NTgyOTU5ODEsImlkIjo0LCJyb2xlIjoxfQ.yxhWlBYvH5J_DJu5Yks1byOuCJUuVXsTvxYiyRBsplo"
-var tokenCustomer = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NTgyOTQ1MjksImlkIjo2LCJyb2xlIjoyfQ.eTBg5QPyxVC53Z9RhiPdr14bp7f-CZoo_12hEz2GY1c"
+var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NTg5MjM1NjAsImlkIjoxLCJyb2xlIjoxfQ.-CXHHGIvnlnTfVlV3qVzrLQHu6Kym0QiBMkKwhELPlo"
+var tokenCustomer = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NTg5MjM1MzIsImlkIjozLCJyb2xlIjoyfQ.O3fIjS46clcLplMLAcHe76UFG1dT1GjDapr9h8sUlAE"
 
 func TestGetKategori(t *testing.T) {
 	kategoris := []models.Kategori{}

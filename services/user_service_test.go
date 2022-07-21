@@ -5,7 +5,6 @@ import (
 	m "WallE/domains/mocks"
 	"WallE/models"
 	"errors"
-	"fmt"
 	"testing"
 	"time"
 
@@ -267,7 +266,6 @@ func TestCreateResetPassword(t *testing.T) {
 		userRepository.On("GetByEmail", mock.Anything).Return(user, nil).Once()
 		userRepository.On("CreateResetPassword", mock.Anything).Return(nil).Once()
 		err := userService.CreateResetPassword(user.Email)
-		fmt.Println(err)
 		assert.Error(t, err)
 	})
 	t.Run("success", func(t *testing.T) {
