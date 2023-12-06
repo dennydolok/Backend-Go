@@ -3,16 +3,13 @@ package main
 import (
 	"WallE/config"
 	"WallE/handlers/rest"
-	"crypto/tls"
 	"crypto/x509"
-	"io/ioutil"
-	"log"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 )
 
-const localCertFile = "/config/origin_ca_rsa_root.pem"
+// const localCertFile = "/config/origin_ca_rsa_root.pem"
 
 func main() {
 
@@ -26,19 +23,20 @@ func main() {
 		rootCAs = x509.NewCertPool()
 	}
 
-	certs, _ := ioutil.ReadFile(localCertFile)
+	// certs, _ := ioutil.ReadFile(localCertFile)
 
-	if ok := rootCAs.AppendCertsFromPEM(certs); !ok {
-		log.Println("No certs appended, using system certs only")
-	}
+	// if ok := rootCAs.AppendCertsFromPEM(certs); !ok {
+	// 	log.Println("No certs appended, using system certs only")
+	// }
 
 	s := http.Server{
 		Addr:    ":443",
 		Handler: e,
-		TLSConfig: &tls.Config{
-			RootCAs: rootCAs,
-		},
+		// TLSConfig: &tls.Config{
+		// 	RootCAs: rootCAs,
+		// },
 	}
+
 	if err := s.ListenAndServeTLS("/config/certificate.crt", "/config/private.key"); err != http.ErrServerClosed {
 		e.Logger.Fatal(err)
 	}
