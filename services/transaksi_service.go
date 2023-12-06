@@ -19,7 +19,7 @@ var ChargeTransaction = coreapi.ChargeTransaction
 var oldChargeTransaction = ChargeTransaction
 
 func (s *serviceTransaksi) NewTransactionBank(transaksi models.Transaksi) (error, interface{}) {
-	midtrans.ServerKey = "SB-Mid-server-EU1Q1faz7h8T1eL51zvGViIC"
+	midtrans.ServerKey = "SB-Mid-server-oiWZtAAp4u5TaWKDm5AiRr1R"
 	midtrans.Environment = midtrans.Sandbox
 	produk := s.repo.GetProdukById(transaksi.ProdukID)
 	if produk.ID == 0 {
@@ -80,7 +80,7 @@ func (s *serviceTransaksi) NewTransactionBank(transaksi models.Transaksi) (error
 }
 
 func (s *serviceTransaksi) NewTransactionEWallet(transaksi models.Transaksi) (error, interface{}) {
-	midtrans.ServerKey = "SB-Mid-server-EU1Q1faz7h8T1eL51zvGViIC"
+	midtrans.ServerKey = "SB-Mid-server-oiWZtAAp4u5TaWKDm5AiRr1R"
 	midtrans.Environment = midtrans.Sandbox
 	produk := s.repo.GetProdukById(transaksi.ProdukID)
 	if produk.ID == 0 {
