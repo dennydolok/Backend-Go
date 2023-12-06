@@ -14,11 +14,11 @@ type Config struct {
 
 func InitConfig() Config {
 	return Config{
-		DB_USERNAME:    GetValue("DB_USERNAME", "root"),
-		DB_PASSWORD:    GetValue("DB_PASSWORD", ""),
+		DB_USERNAME:    GetValue("${{secrets.DB_USERNAME}}", "root"),
+		DB_PASSWORD:    GetValue("${{secrets.DB_PASSWORD}}", ""),
 		DB_PORT:        GetValue("DB_PORT", "3306"),
-		DB_NAME:        GetValue("DB_NAME", "db_WallE"),
-		DB_HOST:        GetValue("DB_HOST", "localhost"),
+		DB_NAME:        GetValue("${{secrets.DB_NAME}}", "db_Walle"),
+		DB_HOST:        GetValue("${{secrets.DB_HOST}}", "localhost"),
 		SECRET_KEY:     GetValue("JWT_KEY", "secret"),
 		SERVER_ADDRESS: GetValue("SERVER_ADDRESS", "0.0.0.0:8080"),
 	}
